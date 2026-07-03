@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { authChildGuard, authGuard, loginRedirectGuard } from './core/auth/auth.guard';
+import { BranchList } from './features/branches/branch-list/branch-list';
 import { Dashboard } from './features/dashboard/dashboard';
 import { Login } from './features/login/login';
 import { OrganizationCreate } from './features/organizations/organization-create/organization-create';
@@ -25,7 +26,7 @@ export const routes: Routes = [
       { path: 'organizations', component: OrganizationList },
       { path: 'organizations/new', component: OrganizationCreate },
       { path: 'organizations/:id', component: OrganizationDetail },
-      { path: 'branches', component: Placeholder, data: { title: 'Branches' } },
+      { path: 'branches', component: BranchList },
       { path: 'venues', component: Placeholder, data: { title: 'Venues' } },
       { path: 'clients', component: Placeholder, data: { title: 'Clients' } },
       { path: 'setup', component: Placeholder, data: { title: 'Setup' } },

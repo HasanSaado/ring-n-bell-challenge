@@ -22,6 +22,10 @@ export class ApiClient {
       .pipe(map((response) => this.unwrap(response)));
   }
 
+  getRaw<T>(path: string, params?: ApiQueryParams): Observable<T> {
+    return this.http.get<T>(this.buildUrl(path), { params: this.cleanParams(params) });
+  }
+
   post<TResponse, TBody extends object>(path: string, body: TBody): Observable<TResponse> {
     return this.http
       .post<ApiResponse<TResponse>>(this.buildUrl(path), body)
@@ -32,6 +36,10 @@ export class ApiClient {
     return this.http
       .put<ApiResponse<TResponse>>(this.buildUrl(path), body)
       .pipe(map((response) => this.unwrap(response)));
+  }
+
+  delete<TResponse>(path: string): Observable<TResponse> {
+    return this.http.delete<ApiResponse<TResponse>>(this.buildUrl(path)).pipe(map((response) => this.unwrap(response)));
   }
 
   private buildUrl(path: string): string {
