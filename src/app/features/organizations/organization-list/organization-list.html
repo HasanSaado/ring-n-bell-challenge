@@ -1,0 +1,170 @@
+<section class="space-y-5">
+  <ui-card>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h2 class="text-2xl font-semibold text-slate-950">Organizations</h2>
+      <p class="mt-1 text-sm text-slate-600">Manage customer organizations and sales ownership.</p>
+    </div>
+    <ui-button
+      variant="primary"
+      routerLink="/organizations/new"
+    >
+      Create Organization
+    </ui-button>
+    </div>
+  </ui-card>
+
+  <ui-card padding="sm">
+    <div class="flex flex-col gap-2">
+      <label class="block max-w-xl">
+        <span class="text-xs font-semibold uppercase tracking-wide text-slate-500">Search organizations</span>
+        <input
+          type="search"
+          [formControl]="searchControl"
+          placeholder="Search by name, admin, or sales owner"
+          class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+        />
+      </label>
+      <p class="text-xs text-slate-500">Sort from the table headers. Results stay bound to the API query.</p>
+    </div>
+  </ui-card>
+
+  @if (errorMessage()) {
+    <div class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <span>{{ errorMessage() }}</span>
+        <ui-button variant="secondary" size="sm" (pressed)="loadOrganizations()">
+          Retry
+        </ui-button>
+      </div>
+    </div>
+  }
+
+  <ui-card padding="none">
+    <div class="overflow-hidden rounded-xl">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-100/80 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+        <tr>
+          <th class="px-4 py-2.5">
+            <sort-header
+              label="Name"
+              sortKey="name"
+              [activeSortBy]="sortBy()"
+              [sortOrder]="sortOrder()"
+              ariaLabel="Sort by name"
+              (sort)="setSort($event)"
+            />
+          </th>
+          <th class="px-4 py-2.5">Admin</th>
+          <th class="px-4 py-2.5">Country</th>
+          <th class="px-4 py-2.5 text-right">Branches</th>
+          <th class="px-4 py-2.5 text-right">Venues</th>
+          <th class="px-4 py-2.5">Status</th>
+          <th class="px-4 py-2.5">
+            <sort-header
+              label="Created"
+              sortKey="createdAt"
+              [activeSortBy]="sortBy()"
+              [sortOrder]="sortOrder()"
+              ariaLabel="Sort by created date"
+              (sort)="setSort($event)"
+            />
+          </th>
+          <th class="px-4 py-2.5 text-right"><span class="sr-only">Row actions</span></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        @if (loading()) {
+          @for (row of [1, 2, 3, 4, 5]; track row) {
+            <tr>
+              @for (cell of [1, 2, 3, 4, 5, 6, 7, 8]; track cell) {
+                <td class="px-4 py-3">
+                  <div class="h-4 w-24 animate-pulse rounded bg-slate-200"></div>
+                </td>
+              }
+            </tr>
+          }
+        } @else if (organizations().length) {
+          @for (organization of organizations(); track organization.id) {
+            <tr class="hover:bg-slate-50/80">
+              <td class="px-4 py-3">
+                <div class="font-semibold text-slate-950">{{ organization.name }}</div>
+                <div class="text-xs text-slate-500">{{ organization.orgId }}</div>
+                @if (rowErrors()[organization.id]) {
+                  <div class="mt-1 text-xs font-medium text-red-700">{{ rowErrors()[organization.id] }}</div>
+                }
+              </td>
+              <td class="px-4 py-3">
+                <div class="text-slate-800">{{ organization.adminName || organization.adminId }}</div>
+                <div class="text-xs text-slate-500">{{ organization.adminId }}</div>
+              </td>
+              <td class="px-4 py-3 text-slate-700">{{ organization.country }}</td>
+              <td class="px-4 py-3 text-right tabular-nums text-slate-700">{{ organization.branchCount }}</td>
+              <td class="px-4 py-3 text-right tabular-nums text-slate-700">{{ organization.venueCount }}</td>
+              <td class="px-4 py-3">
+                <status-badge [isActive]="organization.isActive" />
+              </td>
+              <td class="px-4 py-3 text-slate-700">{{ organization.createdAt | date: 'mediumDate' }}</td>
+              <td class="px-4 py-3">
+                <div class="flex justify-end gap-1.5">
+                  <ui-icon-button
+                    [routerLink]="['/organizations', organization.id]"
+                    aria-label="View organization details"
+                    title="View organization details"
+                    variant="ghost"
+                  >
+                    <svg lucideEye size="16" aria-hidden="true"></svg>
+                  </ui-icon-button>
+                  <ui-icon-button
+                    [aria-label]="organization.isActive ? 'Deactivate organization' : 'Activate organization'"
+                    [title]="organization.isActive ? 'Deactivate organization' : 'Activate organization'"
+                    [variant]="organization.isActive ? 'danger' : 'secondary'"
+                    [disabled]="updatingIds().has(organization.id)"
+                    (pressed)="toggleOrganization(organization)"
+                  >
+                    <svg lucidePower size="16" aria-hidden="true"></svg>
+                  </ui-icon-button>
+                </div>
+              </td>
+            </tr>
+          }
+        } @else {
+          <tr>
+            <td colspan="8" class="px-4 py-12 text-center">
+              <p class="text-base font-semibold text-slate-950">No organizations found</p>
+              <p class="mt-1 text-sm text-slate-500">Create the first organization or adjust the search.</p>
+              <div class="mt-4">
+                <ui-button variant="primary" routerLink="/organizations/new">Create Organization</ui-button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    </div>
+  </ui-card>
+
+  <ui-card padding="sm">
+  <div class="flex flex-col gap-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+    <span>Page {{ page() }} of {{ totalPages }} / {{ total() }} total</span>
+    <div class="flex justify-end gap-2">
+      <ui-button
+        variant="secondary"
+        size="sm"
+        (pressed)="previousPage()"
+        [disabled]="page() <= 1 || loading()"
+      >
+        Previous
+      </ui-button>
+      <ui-button
+        variant="secondary"
+        size="sm"
+        (pressed)="nextPage()"
+        [disabled]="page() >= totalPages || loading()"
+      >
+        Next
+      </ui-button>
+    </div>
+  </div>
+  </ui-card>
+</section>

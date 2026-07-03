@@ -1,0 +1,16 @@
+@if (routerLink) {
+  <a [routerLink]="routerLink" [attr.aria-label]="ariaLabel" [attr.title]="title" [class]="classes">
+    <ng-content />
+  </a>
+} @else {
+  <button
+    type="button"
+    [disabled]="disabled"
+    [attr.aria-label]="ariaLabel"
+    [attr.title]="title"
+    [class]="classes"
+    (click)="pressed.emit()"
+  >
+    <ng-content />
+  </button>
+}

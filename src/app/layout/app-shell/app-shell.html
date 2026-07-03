@@ -1,28 +1,31 @@
 <div class="min-h-screen bg-slate-100 text-slate-950">
   <aside class="fixed inset-y-0 left-0 hidden w-64 border-r border-slate-200 bg-white lg:block">
-    <div class="border-b border-slate-200 px-5 py-4">
-      <p class="text-sm font-semibold uppercase tracking-wide text-slate-500">Ring n Bring</p>
+    <div class="border-b border-slate-200 px-5 py-5">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Ring n Bring</p>
       <h1 class="mt-1 text-lg font-semibold text-slate-950">Sales Portal</h1>
+      <p class="mt-1 text-xs text-slate-500">Internal operations</p>
     </div>
 
-    <nav class="space-y-1 px-3 py-4">
+    <nav class="px-3 py-4">
+      <p class="px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Workspace</p>
+      <div class="space-y-1">
       @for (item of navItems; track item.path) {
         <a
           [routerLink]="item.path"
-          routerLinkActive="bg-slate-900 text-white"
+          routerLinkActive="bg-slate-900 text-white shadow-sm hover:bg-slate-900 hover:text-white"
           #activeLink="routerLinkActive"
           [class.text-slate-700]="!activeLink.isActive"
-          [class.hover:bg-slate-100]="!activeLink.isActive"
-          class="block rounded-md px-3 py-2 text-sm font-medium"
+          class="block rounded-md px-3 py-2.5 text-sm font-medium transition hover:bg-slate-100 hover:text-slate-950"
         >
           {{ item.label }}
         </a>
       }
+      </div>
     </nav>
   </aside>
 
   <div class="lg:pl-64">
-    <header class="sticky top-0 z-10 border-b border-slate-200 bg-white">
+    <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div class="flex min-h-16 flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between lg:px-6">
         <nav class="flex gap-1 overflow-x-auto lg:hidden">
           @for (item of navItems; track item.path) {
@@ -39,19 +42,19 @@
           }
         </nav>
 
-        <div class="min-w-0">
+        <div class="min-w-0 sm:ml-auto sm:text-right">
           <p class="truncate text-sm font-semibold text-slate-950">
             {{ authService.user()?.name || authService.user()?.email }}
           </p>
           <p class="truncate text-xs text-slate-500">
-            {{ authService.user()?.email }} · {{ authService.user()?.role }}
+            {{ authService.user()?.email }} / {{ authService.user()?.role }}
           </p>
         </div>
 
         <button
           type="button"
           (click)="signOut()"
-          class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 sm:w-auto"
+          class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 sm:w-auto"
         >
           Sign out
         </button>

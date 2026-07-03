@@ -1,0 +1,123 @@
+<section class="max-w-3xl space-y-5">
+  <div class="flex items-start gap-3">
+    <ui-icon-button
+      routerLink="/organizations"
+      aria-label="Back to organizations"
+      title="Back to organizations"
+      variant="secondary"
+    >
+      <svg lucideArrowLeft size="16" aria-hidden="true"></svg>
+    </ui-icon-button>
+    <div>
+      <h2 class="text-2xl font-semibold text-slate-950">Create Organization</h2>
+      <p class="mt-1 text-sm text-slate-600">Create an organization and assign its client admin.</p>
+    </div>
+  </div>
+
+  <ui-card>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <label class="block sm:col-span-2">
+        <span class="text-sm font-medium text-slate-700">Name</span>
+        <input
+          type="text"
+          formControlName="name"
+          class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+        />
+        @if (form.controls.name.touched && form.controls.name.hasError('required')) {
+          <span class="mt-1 block text-xs font-medium text-red-700">Name is required.</span>
+        }
+      </label>
+
+      <label class="block sm:col-span-2">
+        <span class="text-sm font-medium text-slate-700">Organization admin</span>
+        <input
+          type="search"
+          formControlName="adminSearch"
+          placeholder="Search clients by name or email"
+          class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+        />
+        <input type="hidden" formControlName="adminId" />
+        @if (form.controls.adminId.touched && form.controls.adminId.hasError('required')) {
+          <span class="mt-1 block text-xs font-medium text-red-700">Admin is required.</span>
+        }
+        @if (clientLoading()) {
+          <div class="mt-2 text-xs text-slate-500">Searching clients...</div>
+        } @else if (clients().length) {
+          <div class="mt-2 overflow-hidden rounded-md border border-slate-200">
+            @for (client of clients(); track client.id) {
+              <button
+                type="button"
+                (click)="selectClient(client)"
+                class="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+              >
+                <span class="font-medium text-slate-950">{{ client.name }}</span>
+                @if (client.email) {
+                  <span class="ml-2 text-xs text-slate-500">{{ client.email }}</span>
+                }
+              </button>
+            }
+          </div>
+        }
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-medium text-slate-700">Country</span>
+        <input
+          type="text"
+          formControlName="country"
+          class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+        />
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-medium text-slate-700">Timezone</span>
+        <input
+          type="text"
+          formControlName="timezone"
+          class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+        />
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-medium text-slate-700">Currency</span>
+        <input
+          type="text"
+          formControlName="currency"
+          class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+        />
+      </label>
+
+      <label class="block">
+        <span class="text-sm font-medium text-slate-700">Billing Email</span>
+        <input
+          type="email"
+          formControlName="billingEmail"
+          class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+        />
+        @if (form.controls.billingEmail.touched && form.controls.billingEmail.hasError('email')) {
+          <span class="mt-1 block text-xs font-medium text-red-700">Enter a valid email.</span>
+        }
+      </label>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (successMessage()) {
+      <div class="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
+        {{ successMessage() }}
+      </div>
+    }
+
+    <div class="mt-5 flex justify-end">
+      <ui-button type="submit" variant="primary" [disabled]="form.invalid || saving()">
+        {{ saving() ? 'Creating...' : 'Create Organization' }}
+      </ui-button>
+    </div>
+  </form>
+  </ui-card>
+</section>

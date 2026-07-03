@@ -1,0 +1,9 @@
+@if (routerLink) {
+  <a [routerLink]="routerLink" [class]="classes">
+    <ng-content />
+  </a>
+} @else {
+  <button [type]="type" [disabled]="disabled" [class]="classes" (click)="pressed.emit()">
+    <ng-content />
+  </button>
+}
