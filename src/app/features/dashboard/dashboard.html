@@ -1,0 +1,107 @@
+<section class="space-y-5">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h2 class="text-2xl font-semibold text-slate-950">Dashboard</h2>
+      <p class="mt-1 text-sm text-slate-600">Operational summary for sales administration.</p>
+    </div>
+
+    @if (errorMessage()) {
+      <button
+        type="button"
+        (click)="loadSummary()"
+        class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+      >
+        Retry
+      </button>
+    }
+  </div>
+
+  @if (errorMessage()) {
+    <div class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+    @for (card of kpiCards(); track card.label) {
+      <article class="min-h-28 rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ card.label }}</p>
+        @if (loading()) {
+          <div class="mt-4 h-8 w-20 animate-pulse rounded bg-slate-200"></div>
+        } @else {
+          <p class="mt-3 text-3xl font-semibold text-slate-950">{{ card.value }}</p>
+        }
+      </article>
+    }
+  </div>
+
+  <div class="grid gap-5 xl:grid-cols-[1fr_320px]">
+    <section class="min-h-80 rounded-md border border-slate-200 bg-white shadow-sm">
+      <div class="border-b border-slate-200 px-4 py-3">
+        <h3 class="text-sm font-semibold text-slate-950">Recent Activity</h3>
+      </div>
+
+      @if (loading()) {
+        <div class="divide-y divide-slate-100">
+          @for (item of [1, 2, 3, 4, 5]; track item) {
+            <div class="px-4 py-3">
+              <div class="h-4 w-2/3 animate-pulse rounded bg-slate-200"></div>
+              <div class="mt-2 h-3 w-1/3 animate-pulse rounded bg-slate-100"></div>
+            </div>
+          }
+        </div>
+      } @else if (summary(); as dashboardSummary) {
+        @if (dashboardSummary.recentAudit.length) {
+          <div class="divide-y divide-slate-100">
+            @for (audit of dashboardSummary.recentAudit; track audit.id) {
+              <article class="px-4 py-3">
+                <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                  <p class="text-sm font-medium text-slate-950">
+                    {{
+                      audit.action +
+                        ' - ' +
+                        (audit.organizationName ||
+                          audit.venueName ||
+                          audit.resourceId ||
+                          audit.entityName ||
+                          audit.entityType ||
+                          'Unknown record')
+                    }}
+                  </p>
+                  @if (audit.createdAt || audit.timestamp; as auditTimestamp) {
+                    <time class="shrink-0 text-xs text-slate-500">
+                      {{ auditTimestamp | date: 'medium' }}
+                    </time>
+                  }
+                </div>
+                <p class="mt-1 text-xs text-slate-500">
+                  {{ audit.staffName || audit.actorName || 'System' }}
+                </p>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="px-4 py-10 text-sm text-slate-500">No recent activity yet.</div>
+        }
+      } @else {
+        <div class="px-4 py-10 text-sm text-slate-500">No recent activity yet.</div>
+      }
+    </section>
+
+    <section class="rounded-md border border-slate-200 bg-white shadow-sm">
+      <div class="border-b border-slate-200 px-4 py-3">
+        <h3 class="text-sm font-semibold text-slate-950">Quick Links</h3>
+      </div>
+      <div class="grid gap-2 p-3">
+        @for (link of quickLinks; track link.path) {
+          <a
+            [routerLink]="link.path"
+            class="rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+          >
+            {{ link.label }}
+          </a>
+        }
+      </div>
+    </section>
+  </div>
+</section>
