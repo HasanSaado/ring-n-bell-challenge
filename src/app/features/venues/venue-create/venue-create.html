@@ -1,0 +1,364 @@
+<section class="max-w-6xl space-y-5">
+  <div class="flex items-start gap-3">
+    <a
+      routerLink="/venues"
+      aria-label="Back to venues"
+      title="Back to venues"
+      class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+    >
+      <svg lucideArrowLeft size="16" aria-hidden="true"></svg>
+    </a>
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">New record</p>
+      <h2 class="mt-1 text-2xl font-semibold tracking-tight text-slate-950">Create venue</h2>
+      <p class="mt-1 max-w-2xl text-sm text-slate-600">
+        Create a standalone venue or attach it to an organization branch.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <ui-card>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6">
+        <section class="space-y-4">
+          <div class="flex items-center gap-2">
+            <span
+              class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700"
+            >
+              <svg lucideStore size="16" aria-hidden="true"></svg>
+            </span>
+            <div>
+              <h3 class="text-sm font-semibold text-slate-950">Venue identity</h3>
+              <p class="text-xs text-slate-500">Name, type, and operating defaults.</p>
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Name</span>
+              <input
+                type="text"
+                formControlName="name"
+                class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                placeholder="Venue name"
+              />
+              @if (nameRequiredError) {
+                <span class="mt-1.5 block text-xs font-medium text-red-700">Name is required.</span>
+              }
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Type</span>
+              <select
+                formControlName="type"
+                class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+              >
+                <option value="">Select type</option>
+                @for (type of typeOptions; track type) {
+                  <option [value]="type">{{ type }}</option>
+                }
+              </select>
+              @if (typeRequiredError) {
+                <span class="mt-1.5 block text-xs font-medium text-red-700">Type is required.</span>
+              }
+            </label>
+          </div>
+        </section>
+
+        <section class="space-y-4 border-t border-slate-200 pt-5">
+          <div class="flex items-center gap-2">
+            <span
+              class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700"
+            >
+              <svg lucideUserRound size="16" aria-hidden="true"></svg>
+            </span>
+            <div>
+              <h3 class="text-sm font-semibold text-slate-950">Owner</h3>
+              <p class="text-xs text-slate-500">Search clients and select the venue owner.</p>
+            </div>
+          </div>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Owner</span>
+            <span class="relative mt-1.5 block">
+              <svg
+                lucideSearch
+                size="16"
+                aria-hidden="true"
+                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              ></svg>
+              <input
+                type="search"
+                formControlName="ownerSearch"
+                placeholder="Search clients by name or email"
+                class="block h-10 w-full rounded-xl border border-slate-200 pl-9 pr-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+              />
+            </span>
+            <input type="hidden" formControlName="ownerId" />
+            @if (ownerRequiredError) {
+              <span class="mt-1.5 block text-xs font-medium text-red-700">Owner is required.</span>
+            }
+            @if (clientLoading()) {
+              <div class="mt-2 flex items-center gap-2 text-xs font-medium text-slate-500">
+                <svg lucideLoaderCircle size="14" aria-hidden="true" class="animate-spin"></svg>
+                Searching clients...
+              </div>
+            } @else if (clients().length) {
+              <div class="mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                @for (client of clients(); track client.id) {
+                  <button
+                    type="button"
+                    (click)="selectClient(client)"
+                    class="block w-full px-3 py-2.5 text-left text-sm text-slate-700 transition hover:bg-slate-50 focus:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-400"
+                  >
+                    <span class="font-medium text-slate-950">{{ client.name }}</span>
+                    @if (client.email) {
+                      <span class="ml-2 text-xs text-slate-500">{{ client.email }}</span>
+                    }
+                  </button>
+                }
+              </div>
+            }
+          </label>
+        </section>
+
+        <section class="space-y-4 border-t border-slate-200 pt-5">
+          <div class="flex items-center gap-2">
+            <span
+              class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700"
+            >
+              <svg lucideWorkflow size="16" aria-hidden="true"></svg>
+            </span>
+            <div>
+              <h3 class="text-sm font-semibold text-slate-950">Placement</h3>
+              <p class="text-xs text-slate-500">Choose standalone or assign the venue to a branch.</p>
+            </div>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-2">
+            <label
+              class="flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition"
+              [class.border-slate-950]="form.controls.placement.value === 'standalone'"
+              [class.bg-slate-50]="form.controls.placement.value === 'standalone'"
+              [class.border-slate-200]="form.controls.placement.value !== 'standalone'"
+            >
+              <input
+                type="radio"
+                formControlName="placement"
+                value="standalone"
+                class="h-4 w-4 border-slate-300 text-slate-950 focus:ring-slate-400"
+              />
+              <span>
+                <span class="block text-sm font-semibold text-slate-950">Standalone</span>
+                <span class="block text-xs text-slate-500">No organization or branch.</span>
+              </span>
+            </label>
+
+            <label
+              class="flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition"
+              [class.border-slate-950]="form.controls.placement.value === 'organization'"
+              [class.bg-slate-50]="form.controls.placement.value === 'organization'"
+              [class.border-slate-200]="form.controls.placement.value !== 'organization'"
+            >
+              <input
+                type="radio"
+                formControlName="placement"
+                value="organization"
+                class="h-4 w-4 border-slate-300 text-slate-950 focus:ring-slate-400"
+              />
+              <span>
+                <span class="block text-sm font-semibold text-slate-950">Under an organization</span>
+                <span class="block text-xs text-slate-500">Requires organization and branch.</span>
+              </span>
+            </label>
+          </div>
+
+          @if (isOrganizationPlacement) {
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="block">
+                <span class="text-sm font-medium text-slate-700">Organization</span>
+                <select
+                  formControlName="orgId"
+                  class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                >
+                  <option value="">Select organization</option>
+                  @for (organization of organizations(); track organization.id) {
+                    <option [value]="organization.id">{{ organization.name }}</option>
+                  }
+                </select>
+                @if (organizationLoading()) {
+                  <span class="mt-1.5 block text-xs font-medium text-slate-500">Loading organizations...</span>
+                }
+                @if (orgRequiredError) {
+                  <span class="mt-1.5 block text-xs font-medium text-red-700">
+                    Organization is required.
+                  </span>
+                }
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-medium text-slate-700">Branch</span>
+                <select
+                  formControlName="branchId"
+                  class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                >
+                  <option value="">Select branch</option>
+                  @for (branch of branches(); track branch.id) {
+                    <option [value]="branch.id">{{ branch.name }}</option>
+                  }
+                </select>
+                @if (branchLoading()) {
+                  <span class="mt-1.5 block text-xs font-medium text-slate-500">Loading branches...</span>
+                }
+                @if (showNoBranchesMessage) {
+                  <span class="mt-1.5 block text-xs font-medium text-amber-700">
+                    No branches found for this organization. Create a branch first or choose another organization.
+                  </span>
+                }
+                @if (branchRequiredError) {
+                  <span class="mt-1.5 block text-xs font-medium text-red-700">
+                    Branch is required.
+                  </span>
+                }
+              </label>
+            </div>
+          }
+        </section>
+
+        <section class="space-y-4 border-t border-slate-200 pt-5">
+          <div class="flex items-center gap-2">
+            <span
+              class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700"
+            >
+              <svg lucideGlobe2 size="16" aria-hidden="true"></svg>
+            </span>
+            <div>
+              <h3 class="text-sm font-semibold text-slate-950">Localization</h3>
+              <p class="text-xs text-slate-500">Timezone, currency, and optional location fields.</p>
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Timezone</span>
+              <input
+                type="text"
+                formControlName="timezone"
+                class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+              />
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Currency</span>
+              <input
+                type="text"
+                formControlName="currency"
+                class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+              />
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">City</span>
+              <input
+                type="text"
+                formControlName="city"
+                class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+              />
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Country</span>
+              <input
+                type="text"
+                formControlName="country"
+                class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+              />
+            </label>
+          </div>
+        </section>
+
+        @if (errorMessage()) {
+          <div
+            class="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800"
+          >
+            {{ errorMessage() }}
+          </div>
+        }
+
+        @if (successMessage()) {
+          <div
+            class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800"
+          >
+            {{ successMessage() }}
+          </div>
+        }
+
+        <div class="flex justify-end border-t border-slate-200 pt-5">
+          <ui-button type="submit" variant="primary" [disabled]="form.invalid || saving()">
+            @if (saving()) {
+              <svg lucideLoaderCircle size="16" aria-hidden="true" class="animate-spin"></svg>
+              Creating...
+            } @else {
+              <svg lucidePlus size="16" aria-hidden="true"></svg>
+              Create Venue
+            }
+          </ui-button>
+        </div>
+      </form>
+    </ui-card>
+
+    <aside class="space-y-3 lg:sticky lg:top-24 lg:self-start">
+      <ui-card padding="sm">
+        <h3 class="text-sm font-semibold text-slate-950">Submission</h3>
+        <dl class="mt-4 space-y-3">
+          <div class="flex items-start gap-3">
+            <span class="mt-0.5 text-slate-400">
+              <svg lucideWorkflow size="16" aria-hidden="true"></svg>
+            </span>
+            <div>
+              <dt class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Placement
+              </dt>
+              <dd class="mt-0.5 text-sm capitalize text-slate-950">
+                {{ form.controls.placement.value === 'organization' ? 'Under an organization' : 'Standalone' }}
+              </dd>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="mt-0.5 text-slate-400">
+              <svg lucideClock3 size="16" aria-hidden="true"></svg>
+            </span>
+            <div>
+              <dt class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Timezone
+              </dt>
+              <dd class="mt-0.5 text-sm text-slate-950">{{ form.controls.timezone.value }}</dd>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="mt-0.5 text-slate-400">
+              <svg lucideCircleDollarSign size="16" aria-hidden="true"></svg>
+            </span>
+            <div>
+              <dt class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Currency
+              </dt>
+              <dd class="mt-0.5 text-sm text-slate-950">{{ form.controls.currency.value }}</dd>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="mt-0.5 text-slate-400">
+              <svg lucideMapPin size="16" aria-hidden="true"></svg>
+            </span>
+            <div>
+              <dt class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Country
+              </dt>
+              <dd class="mt-0.5 text-sm text-slate-950">{{ form.controls.country.value || 'Not set' }}</dd>
+            </div>
+          </div>
+        </dl>
+      </ui-card>
+    </aside>
+  </div>
+</section>

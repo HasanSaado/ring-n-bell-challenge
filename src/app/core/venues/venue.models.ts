@@ -12,10 +12,10 @@ export interface Venue {
   ownerId?: string;
   ownerName?: string;
   ownerEmail?: string;
-  orgId?: string;
+  orgId?: string | null;
   organizationId?: string;
   organizationName?: string;
-  branchId?: string;
+  branchId?: string | null;
   branchName?: string;
   venueType: VenueType;
   category?: string;
@@ -57,13 +57,13 @@ export interface VenueListParams {
 
 export interface CreateVenueRequest {
   name: string;
-  ownerId?: string;
-  orgId?: string;
-  branchId?: string;
-  venueType?: VenueType;
-  active?: boolean;
-  timezone?: string;
-  currency?: string;
+  owner: string;
+  type: string;
+  orgId: string | null;
+  branchId: string | null;
+  status?: 'Active' | 'Inactive';
+  timezone: string;
+  currency: string;
   city?: string;
   country?: string;
   renewalDate?: string;
@@ -72,8 +72,9 @@ export interface CreateVenueRequest {
 export interface UpdateVenueRequest {
   name?: string;
   ownerId?: string;
-  orgId?: string;
-  branchId?: string;
+  type?: string;
+  orgId?: string | null;
+  branchId?: string | null;
   venueType?: VenueType;
   status?: VenueStatus;
   active?: boolean;

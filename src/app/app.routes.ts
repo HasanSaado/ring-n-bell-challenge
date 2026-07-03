@@ -30,6 +30,10 @@ export const routes: Routes = [
       { path: 'organizations/:id', component: OrganizationDetail },
       { path: 'branches', component: BranchList },
       { path: 'venues', component: VenueList },
+      {
+        path: 'venues/new',
+        loadComponent: () => import('./features/venues/venue-create/venue-create').then((m) => m.VenueCreate),
+      },
       { path: 'venues/:id', component: VenueDetail },
       { path: 'clients', component: Placeholder, data: { title: 'Clients' } },
       { path: 'setup', component: Placeholder, data: { title: 'Setup' } },
