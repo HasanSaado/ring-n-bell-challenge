@@ -74,16 +74,33 @@ export class VenuesApiService {
   }
 
   private normalizeVenue(venue: RawVenue): Venue {
-    const isActive = venue.isActive ?? venue.active ?? false;
+    const status = this.normalizeStatus(venue.status);
+    const isActive = venue.isActive ?? venue.active ?? status === 'active';
+    const hasOrganization = Boolean(venue.orgId || venue.organizationId);
 
     return {
       ...venue,
       ownerName: venue.ownerName ?? venue.owner,
       organizationName: venue.organizationName ?? venue.orgName,
-      venueType: venue.venueType ?? venue.type ?? (venue.orgId || venue.organizationId ? 'organization' : 'standalone'),
+      venueType: venue.venueType ?? (hasOrganization ? 'organization' : 'standalone'),
+      category: venue.type,
       renewalDate: venue.renewalDate ?? venue.renewalAt,
       isActive,
-      status: venue.status ?? (isActive ? 'active' : 'inactive'),
+      status: status ?? (isActive ? 'active' : 'inactive'),
     };
+  }
+
+  private normalizeStatus(status?: string): Venue['status'] {
+    const normalizedStatus = status?.toLowerCase();
+
+    if (
+      normalizedStatus === 'active' ||
+      normalizedStatus === 'inactive' ||
+      normalizedStatus === 'trial'
+    ) {
+      return normalizedStatus;
+    }
+
+    return undefined;
   }
 }

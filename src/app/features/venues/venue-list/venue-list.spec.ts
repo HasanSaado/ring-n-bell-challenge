@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Observable, of } from 'rxjs';
+import { provideRouter } from '@angular/router';
+import { Observable, Subject, of } from 'rxjs';
 
 import {
   Organization,
@@ -7,12 +8,19 @@ import {
   OrganizationListResponse,
 } from '../../../core/organizations/organization.models';
 import { OrganizationsApiService } from '../../../core/organizations/organizations-api.service';
-import { Venue, VenueListParams, VenueListResponse } from '../../../core/venues/venue.models';
+import {
+  UpdateVenueRequest,
+  Venue,
+  VenueListParams,
+  VenueListResponse,
+} from '../../../core/venues/venue.models';
 import { VenuesApiService } from '../../../core/venues/venues-api.service';
 import { VenueList } from './venue-list';
 
 class FakeVenuesApiService {
+  readonly updateSubject = new Subject<Venue>();
   readonly listRequests: VenueListParams[] = [];
+  readonly updateRequests: Array<{ id: string; body: UpdateVenueRequest }> = [];
 
   listVenues(params: VenueListParams): Observable<VenueListResponse> {
     this.listRequests.push(params);
@@ -23,6 +31,11 @@ class FakeVenuesApiService {
       page: 1,
       limit: 10,
     });
+  }
+
+  updateVenue(id: string, body: UpdateVenueRequest): Observable<Venue> {
+    this.updateRequests.push({ id, body });
+    return this.updateSubject.asObservable();
   }
 }
 
@@ -52,6 +65,8 @@ const activeVenue: Venue = {
   isActive: true,
   timezone: 'Asia/Beirut',
   currency: 'USD',
+  city: 'Beirut',
+  country: 'Lebanon',
   renewalDate: '2026-12-31T00:00:00.000Z',
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-02T00:00:00.000Z',
@@ -84,6 +99,7 @@ describe('VenueList', () => {
     await TestBed.configureTestingModule({
       imports: [VenueList],
       providers: [
+        provideRouter([]),
         { provide: VenuesApiService, useValue: fakeVenuesApi },
         { provide: OrganizationsApiService, useClass: FakeOrganizationsApiService },
       ],
@@ -100,6 +116,40 @@ describe('VenueList', () => {
     expect(fixture.nativeElement.textContent).toContain('Downtown Branch');
     expect(fixture.nativeElement.textContent).toContain('Asia/Beirut');
     expect(fixture.nativeElement.textContent).toContain('USD');
+  });
+
+  it('links each row to the venue detail route', () => {
+    const detailLink = fixture.nativeElement.querySelector(
+      'a[aria-label="View venue details"]',
+    ) as HTMLAnchorElement | null;
+
+    expect(detailLink).toBeTruthy();
+    expect(detailLink?.getAttribute('href')).toBe('/venues/venue_001');
+  });
+
+  it('rolls back an optimistic active status toggle when the update fails', () => {
+    expect(fixture.nativeElement.textContent).toContain('Active');
+
+    const toggleButton = findButton('Deactivate venue');
+    toggleButton.click();
+    fixture.detectChanges();
+
+    expect(fakeVenuesApi.updateRequests.at(-1)).toEqual({
+      id: activeVenue.id,
+      body: {
+        active: false,
+        status: 'inactive',
+      },
+    });
+    expect(fixture.nativeElement.textContent).toContain('Inactive');
+    expect(findButton('Activate venue')).toBeTruthy();
+
+    fakeVenuesApi.updateSubject.error(new Error('Update failed'));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Active');
+    expect(findButton('Deactivate venue')).toBeTruthy();
+    expect(fixture.nativeElement.textContent).toContain('Status update failed. The previous value was restored.');
   });
 
   it('toggles owner sorting from the table header and reloads from the API', () => {
@@ -141,5 +191,15 @@ describe('VenueList', () => {
 
     expect(fakeVenuesApi.listRequests.at(-1)?.orgId).toBe(activeOrganization.id);
     expect(fakeVenuesApi.listRequests.at(-1)?.venueType).toBe('organization');
+  }
+
+  function findButton(label: string): HTMLButtonElement {
+    const button = fixture.nativeElement.querySelector(`button[aria-label="${label}"]`) as HTMLButtonElement | null;
+
+    if (!button) {
+      throw new Error(`Button "${label}" was not found.`);
+    }
+
+    return button;
   }
 });

@@ -267,15 +267,29 @@
                           {{ venue.venueId }}
                         </div>
                       }
+                      @if (getRowError(venue.id); as rowError) {
+                        <div class="mt-1 text-xs font-medium text-red-700">
+                          {{ rowError }}
+                        </div>
+                      }
                     </div>
                   </div>
                 </td>
                 <td class="px-4 py-3.5 text-slate-700">{{ getOwner(venue) }}</td>
                 <td class="px-4 py-3.5 text-slate-700">{{ getOrganizationName(venue) }}</td>
                 <td class="px-4 py-3.5 text-slate-700">{{ getBranchName(venue) }}</td>
-                <td class="px-4 py-3.5 text-slate-700 capitalize">{{ venue.venueType }}</td>
+                <td class="px-4 py-3.5 text-slate-700 capitalize">{{ getVenueTypeLabel(venue) }}</td>
                 <td class="px-4 py-3.5">
-                  <status-badge [isActive]="venue.isActive" />
+                  @if (isTrialStatus(venue)) {
+                    <span
+                      class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700"
+                    >
+                      <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                      Trial
+                    </span>
+                  } @else {
+                    <status-badge [isActive]="venue.isActive" />
+                  }
                 </td>
                 <td class="px-4 py-3.5 text-slate-700">{{ venue.timezone || 'Not set' }}</td>
                 <td class="px-4 py-3.5 text-slate-700">{{ venue.currency || 'Not set' }}</td>
@@ -287,14 +301,23 @@
                 </td>
                 <td class="px-4 py-3.5">
                   <div class="flex justify-end gap-1.5">
-                    <button
-                      type="button"
-                      disabled
+                    <a
+                      [routerLink]="['/venues', venue.id]"
                       aria-label="View venue details"
                       title="View venue details"
-                      class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-slate-300 transition disabled:cursor-not-allowed"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-slate-500 transition hover:border-slate-200 hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
                     >
                       <svg lucideEye size="16" aria-hidden="true"></svg>
+                    </a>
+                    <button
+                      type="button"
+                      (click)="toggleVenueStatus(venue)"
+                      [disabled]="isUpdating(venue.id)"
+                      [attr.aria-label]="venue.isActive ? 'Deactivate venue' : 'Activate venue'"
+                      [attr.title]="venue.isActive ? 'Deactivate venue' : 'Activate venue'"
+                      [class]="getStatusButtonClasses(venue)"
+                    >
+                      <svg lucidePower size="16" aria-hidden="true"></svg>
                     </button>
                   </div>
                 </td>

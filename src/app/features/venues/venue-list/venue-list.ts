@@ -7,10 +7,12 @@ import {
   LucideChevronUp,
   LucideChevronsUpDown,
   LucideEye,
+  LucidePower,
   LucideRefreshCw,
   LucideSearch,
   LucideStore,
 } from '@lucide/angular';
+import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 
 import { Organization, SortOrder } from '../../../core/organizations/organization.models';
@@ -30,10 +32,12 @@ import { StatusBadgeComponent } from '../../../shared/ui/status-badge/status-bad
     LucideChevronUp,
     LucideChevronsUpDown,
     LucideEye,
+    LucidePower,
     LucideRefreshCw,
     LucideSearch,
     LucideStore,
     ReactiveFormsModule,
+    RouterLink,
     StatusBadgeComponent,
     UiButtonComponent,
     UiCardComponent,
@@ -53,6 +57,8 @@ export class VenueList {
   readonly loading = signal(true);
   readonly organizationLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly rowErrors = signal<Record<string, string>>({});
+  readonly updatingIds = signal<ReadonlySet<string>>(new Set<string>());
 
   readonly page = signal(1);
   readonly limit = signal(10);
@@ -64,6 +70,8 @@ export class VenueList {
   readonly setSort = (sortBy: VenueSortBy): void => this.applySort(sortBy);
   readonly previousPage = (): void => this.goToPreviousPage();
   readonly nextPage = (): void => this.goToNextPage();
+  readonly getRowError = (id: string): string | null => this.rowErrors()[id] ?? null;
+  readonly isUpdating = (id: string): boolean => this.updatingIds().has(id);
 
   constructor() {
     this.searchControl.valueChanges
@@ -138,6 +146,14 @@ export class VenueList {
     return venue.branchName || venue.branchId || 'Not assigned';
   }
 
+  getVenueTypeLabel(venue: Venue): string {
+    return venue.category || venue.venueType;
+  }
+
+  isTrialStatus(venue: Venue): boolean {
+    return venue.status === 'trial';
+  }
+
   isSortedBy(sortBy: VenueSortBy): boolean {
     return this.sortBy() === sortBy;
   }
@@ -148,6 +164,49 @@ export class VenueList {
 
   isDescending(sortBy: VenueSortBy): boolean {
     return this.isSortedBy(sortBy) && this.sortOrder() === 'desc';
+  }
+
+  getStatusButtonClasses(venue: Venue): string {
+    const variantClasses = venue.isActive
+      ? 'border-red-200 bg-red-50 text-red-700 hover:border-red-300 hover:bg-red-100'
+      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950';
+
+    return [
+      'inline-flex h-9 w-9 items-center justify-center rounded-xl border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55',
+      variantClasses,
+    ].join(' ');
+  }
+
+  toggleVenueStatus(venue: Venue): void {
+    if (this.updatingIds().has(venue.id)) {
+      return;
+    }
+
+    const nextIsActive = !venue.isActive;
+    const previousVenue = venue;
+    const nextVenue: Venue = {
+      ...venue,
+      isActive: nextIsActive,
+      status: nextIsActive ? 'active' : 'inactive',
+    };
+
+    this.replaceVenue(nextVenue);
+    this.clearRowError(venue.id);
+    this.setUpdating(venue.id, true);
+
+    this.venuesApi
+      .updateVenue(venue.id, {
+        active: nextVenue.isActive,
+        status: nextVenue.status,
+      })
+      .pipe(finalize(() => this.setUpdating(venue.id, false)))
+      .subscribe({
+        next: (updatedVenue) => this.replaceVenue(updatedVenue),
+        error: () => {
+          this.replaceVenue(previousVenue);
+          this.setRowError(venue.id, 'Status update failed. The previous value was restored.');
+        },
+      });
   }
 
   private fetchVenues(): void {
@@ -233,5 +292,35 @@ export class VenueList {
     }
 
     return this.organizations().find((organization) => organization.id === orgId || organization.orgId === orgId)?.name;
+  }
+
+  private replaceVenue(venue: Venue): void {
+    this.venues.update((venues) => venues.map((item) => (item.id === venue.id ? venue : item)));
+  }
+
+  private setUpdating(id: string, isUpdating: boolean): void {
+    this.updatingIds.update((currentIds) => {
+      const nextIds = new Set(currentIds);
+
+      if (isUpdating) {
+        nextIds.add(id);
+      } else {
+        nextIds.delete(id);
+      }
+
+      return nextIds;
+    });
+  }
+
+  private setRowError(id: string, message: string): void {
+    this.rowErrors.update((errors) => ({ ...errors, [id]: message }));
+  }
+
+  private clearRowError(id: string): void {
+    this.rowErrors.update((errors) => {
+      const nextErrors = { ...errors };
+      delete nextErrors[id];
+      return nextErrors;
+    });
   }
 }

@@ -1,6 +1,6 @@
 import { SortOrder } from '../organizations/organization.models';
 
-export type VenueStatus = 'active' | 'inactive';
+export type VenueStatus = 'active' | 'inactive' | 'trial';
 export type VenueType = 'organization' | 'standalone';
 export type VenueTypeFilter = 'all' | VenueType;
 export type VenueSortBy = 'name' | 'owner' | 'createdAt';
@@ -18,25 +18,29 @@ export interface Venue {
   branchId?: string;
   branchName?: string;
   venueType: VenueType;
+  category?: string;
   status?: VenueStatus;
   isActive: boolean;
   timezone?: string;
   currency?: string;
+  city?: string;
+  country?: string;
   renewalDate?: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
-export interface RawVenue extends Omit<Venue, 'isActive' | 'venueType'> {
+export interface RawVenue extends Omit<Venue, 'category' | 'isActive' | 'status' | 'venueType'> {
   active?: boolean;
   isActive?: boolean;
-  type?: VenueType;
+  type?: string;
   venueType?: VenueType;
   orgName?: string;
   organizationName?: string;
   branchName?: string;
   owner?: string;
   ownerName?: string;
+  status?: string;
   renewalAt?: string;
   renewalDate?: string;
 }
@@ -60,6 +64,8 @@ export interface CreateVenueRequest {
   active?: boolean;
   timezone?: string;
   currency?: string;
+  city?: string;
+  country?: string;
   renewalDate?: string;
 }
 
@@ -73,6 +79,8 @@ export interface UpdateVenueRequest {
   active?: boolean;
   timezone?: string;
   currency?: string;
+  city?: string;
+  country?: string;
   renewalDate?: string;
 }
 

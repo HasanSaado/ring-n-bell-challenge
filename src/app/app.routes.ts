@@ -8,6 +8,7 @@ import { OrganizationCreate } from './features/organizations/organization-create
 import { OrganizationDetail } from './features/organizations/organization-detail/organization-detail';
 import { OrganizationList } from './features/organizations/organization-list/organization-list';
 import { Placeholder } from './features/placeholder/placeholder';
+import { VenueDetail } from './features/venues/venue-detail/venue-detail';
 import { VenueList } from './features/venues/venue-list/venue-list';
 import { AppShell } from './layout/app-shell/app-shell';
 
@@ -29,6 +30,7 @@ export const routes: Routes = [
       { path: 'organizations/:id', component: OrganizationDetail },
       { path: 'branches', component: BranchList },
       { path: 'venues', component: VenueList },
+      { path: 'venues/:id', component: VenueDetail },
       { path: 'clients', component: Placeholder, data: { title: 'Clients' } },
       { path: 'setup', component: Placeholder, data: { title: 'Setup' } },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
