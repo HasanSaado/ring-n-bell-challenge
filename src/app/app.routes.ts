@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { authChildGuard, authGuard, loginRedirectGuard } from './core/auth/auth.guard';
 import { BranchList } from './features/branches/branch-list/branch-list';
+import { ClientList } from './features/clients/client-list/client-list';
 import { Dashboard } from './features/dashboard/dashboard';
 import { Login } from './features/login/login';
 import { OrganizationCreate } from './features/organizations/organization-create/organization-create';
@@ -35,7 +36,7 @@ export const routes: Routes = [
         loadComponent: () => import('./features/venues/venue-create/venue-create').then((m) => m.VenueCreate),
       },
       { path: 'venues/:id', component: VenueDetail },
-      { path: 'clients', component: Placeholder, data: { title: 'Clients' } },
+      { path: 'clients', component: ClientList },
       { path: 'setup', component: Placeholder, data: { title: 'Setup' } },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],

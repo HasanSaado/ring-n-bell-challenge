@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { LucideChevronDown, LucideChevronUp, LucideChevronsUpDown } from '@lucide/angular';
 
-import { OrganizationSortBy, SortOrder } from '../../../core/organizations/organization.models';
+import { SortOrder } from '../../../core/organizations/organization.models';
 
 @Component({
   selector: 'sort-header',
@@ -11,11 +11,11 @@ import { OrganizationSortBy, SortOrder } from '../../../core/organizations/organ
 })
 export class SortHeaderComponent {
   @Input({ required: true }) label = '';
-  @Input({ required: true }) sortKey!: OrganizationSortBy;
-  @Input({ required: true }) activeSortBy!: OrganizationSortBy;
+  @Input({ required: true }) sortKey = '';
+  @Input({ required: true }) activeSortBy = '';
   @Input({ required: true }) sortOrder!: SortOrder;
   @Input({ required: true }) ariaLabel = '';
-  @Output() sort = new EventEmitter<OrganizationSortBy>();
+  @Output() sort = new EventEmitter<string>();
 
   get isActive(): boolean {
     return this.activeSortBy === this.sortKey;

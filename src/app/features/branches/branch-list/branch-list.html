@@ -167,7 +167,7 @@
                 [activeSortBy]="sortBy()"
                 [sortOrder]="sortOrder()"
                 ariaLabel="Sort by branch name"
-                (sort)="setSort($event)"
+                (sort)="setSort('name')"
               />
             </th>
             <th class="px-4 py-2.5">Organization</th>
@@ -182,7 +182,7 @@
                 [activeSortBy]="sortBy()"
                 [sortOrder]="sortOrder()"
                 ariaLabel="Sort by created date"
-                (sort)="setSort($event)"
+                (sort)="setSort('createdAt')"
               />
             </th>
             <th class="px-4 py-2.5 text-right"><span class="sr-only">Actions</span></th>
