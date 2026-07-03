@@ -1,9 +1,16 @@
 <span
-  class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold"
-  [class.bg-emerald-100]="isActive"
-  [class.text-emerald-800]="isActive"
+  class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-semibold"
+  [class.border-emerald-200]="isActive"
+  [class.bg-emerald-50]="isActive"
+  [class.text-emerald-700]="isActive"
+  [class.border-slate-200]="!isActive"
   [class.bg-slate-100]="!isActive"
   [class.text-slate-700]="!isActive"
 >
+  <span
+    class="h-1.5 w-1.5 rounded-full"
+    [class.bg-emerald-500]="isActive"
+    [class.bg-slate-400]="!isActive"
+  ></span>
   {{ label }}
 </span>

@@ -2,7 +2,16 @@ import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { LucideEye, LucidePower } from '@lucide/angular';
+import { RouterModule } from '@angular/router';
+import {
+  LucideBuilding2,
+  LucideEye,
+  LucidePlus,
+  LucidePower,
+  LucideRefreshCw,
+  LucideSearch,
+  LucideStore,
+} from '@lucide/angular';
 import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 
 import { Organization, OrganizationListParams, SortOrder } from '../../../core/organizations/organization.models';
@@ -18,9 +27,15 @@ import { StatusBadgeComponent } from '../../../shared/ui/status-badge/status-bad
   standalone: true,
   imports: [
     DatePipe,
+    LucideBuilding2,
     LucideEye,
+    LucidePlus,
     LucidePower,
+    LucideRefreshCw,
+    LucideSearch,
+    LucideStore,
     ReactiveFormsModule,
+    RouterModule,
     SortHeaderComponent,
     StatusBadgeComponent,
     UiButtonComponent,
@@ -59,6 +74,39 @@ export class OrganizationList {
 
   get totalPages(): number {
     return Math.max(1, Math.ceil(this.total() / this.limit()));
+  }
+
+  get activeOnPage(): number {
+    return this.organizations().filter((organization) => organization.isActive).length;
+  }
+
+  get branchCountOnPage(): number {
+    return this.organizations().reduce((total, organization) => total + organization.branchCount, 0);
+  }
+
+  get venueCountOnPage(): number {
+    return this.organizations().reduce((total, organization) => total + organization.venueCount, 0);
+  }
+
+  get resultStart(): number {
+    if (!this.total()) {
+      return 0;
+    }
+
+    return (this.page() - 1) * this.limit() + 1;
+  }
+
+  get resultEnd(): number {
+    return Math.min(this.page() * this.limit(), this.total());
+  }
+
+  getInitials(name: string): string {
+    return name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('');
   }
 
   loadOrganizations(): void {

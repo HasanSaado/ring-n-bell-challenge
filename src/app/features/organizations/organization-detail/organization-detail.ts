@@ -1,12 +1,26 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { LucideArrowLeft } from '@lucide/angular';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import {
+  LucideArrowLeft,
+  LucideBriefcaseBusiness,
+  LucideBuilding2,
+  LucideCalendarClock,
+  LucideCircleDollarSign,
+  LucideClock3,
+  LucideGlobe2,
+  LucideHash,
+  LucideMail,
+  LucideRefreshCw,
+  LucideStore,
+  LucideUserRound,
+} from '@lucide/angular';
 import { finalize } from 'rxjs';
 
 import { Organization } from '../../../core/organizations/organization.models';
 import { OrganizationsApiService } from '../../../core/organizations/organizations-api.service';
-import { UiIconButtonComponent } from '../../../shared/ui/icon-button/ui-icon-button';
+import { UiButtonComponent } from '../../../shared/ui/button/ui-button';
+import { UiCardComponent } from '../../../shared/ui/card/ui-card';
 import { StatusBadgeComponent } from '../../../shared/ui/status-badge/status-badge';
 
 @Component({
@@ -15,9 +29,21 @@ import { StatusBadgeComponent } from '../../../shared/ui/status-badge/status-bad
   imports: [
     DatePipe,
     LucideArrowLeft,
-    RouterLink,
+    LucideBriefcaseBusiness,
+    LucideBuilding2,
+    LucideCalendarClock,
+    LucideCircleDollarSign,
+    LucideClock3,
+    LucideGlobe2,
+    LucideHash,
+    LucideMail,
+    LucideRefreshCw,
+    LucideStore,
+    LucideUserRound,
+    RouterModule,
     StatusBadgeComponent,
-    UiIconButtonComponent,
+    UiButtonComponent,
+    UiCardComponent,
   ],
   templateUrl: './organization-detail.html',
 })

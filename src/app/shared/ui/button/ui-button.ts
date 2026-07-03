@@ -20,8 +20,8 @@ export class UiButtonComponent {
 
   get classes(): string {
     return [
-      'inline-flex items-center justify-center rounded-lg font-semibold shadow-sm transition focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:cursor-not-allowed disabled:opacity-55',
-      this.size === 'sm' ? 'h-8 px-3 text-xs' : 'h-9 px-4 text-sm',
+      'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border font-semibold shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55',
+      this.size === 'sm' ? 'h-8 px-3 text-xs' : 'h-10 px-4 text-sm',
       this.variantClasses,
     ].join(' ');
   }
@@ -29,13 +29,13 @@ export class UiButtonComponent {
   private get variantClasses(): string {
     switch (this.variant) {
       case 'primary':
-        return 'bg-slate-900 text-white hover:bg-slate-800';
+        return 'border-slate-950 bg-slate-950 text-white hover:border-slate-800 hover:bg-slate-800';
       case 'ghost':
-        return 'bg-transparent text-slate-700 shadow-none hover:bg-slate-100';
+        return 'border-transparent bg-transparent text-slate-700 shadow-none hover:bg-slate-100 hover:text-slate-950';
       case 'danger':
-        return 'border border-red-200 bg-red-50 text-red-700 hover:bg-red-100';
+        return 'border-red-200 bg-red-50 text-red-700 hover:border-red-300 hover:bg-red-100';
       case 'secondary':
-        return 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50';
+        return 'border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950';
     }
   }
 }

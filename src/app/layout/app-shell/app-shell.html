@@ -1,67 +1,138 @@
 <div class="min-h-screen bg-slate-100 text-slate-950">
-  <aside class="fixed inset-y-0 left-0 hidden w-64 border-r border-slate-200 bg-white lg:block">
-    <div class="border-b border-slate-200 px-5 py-5">
-      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Ring n Bring</p>
-      <h1 class="mt-1 text-lg font-semibold text-slate-950">Sales Portal</h1>
-      <p class="mt-1 text-xs text-slate-500">Internal operations</p>
+  <aside
+    class="fixed inset-y-0 left-0 hidden w-72 border-r border-slate-200/80 bg-white/95 shadow-sm lg:block"
+  >
+    <div class="flex h-16 items-center gap-3 border-b border-slate-200 px-5">
+      <div
+        class="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-950 text-white shadow-sm"
+      >
+        <svg lucidePanelLeft size="17" aria-hidden="true"></svg>
+      </div>
+      <div class="min-w-0">
+        <p class="truncate text-sm font-semibold text-slate-950">Ring n Bring</p>
+        <p class="truncate text-xs font-medium text-slate-500">Sales operations portal</p>
+      </div>
     </div>
 
-    <nav class="px-3 py-4">
-      <p class="px-3 pb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Workspace</p>
+    <nav class="px-3 py-4" aria-label="Primary navigation">
+      <p class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+        Workspace
+      </p>
       <div class="space-y-1">
-      @for (item of navItems; track item.path) {
-        <a
-          [routerLink]="item.path"
-          routerLinkActive="bg-slate-900 text-white shadow-sm hover:bg-slate-900 hover:text-white"
-          #activeLink="routerLinkActive"
-          [class.text-slate-700]="!activeLink.isActive"
-          class="block rounded-md px-3 py-2.5 text-sm font-medium transition hover:bg-slate-100 hover:text-slate-950"
-        >
-          {{ item.label }}
-        </a>
-      }
+        @for (item of navItems; track item.path) {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="border-slate-200 bg-slate-950 text-white shadow-sm hover:bg-slate-950 hover:text-white"
+            #activeLink="routerLinkActive"
+            [class.border-transparent]="!activeLink.isActive"
+            [class.text-slate-700]="!activeLink.isActive"
+            class="group flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-medium transition hover:border-slate-200 hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+          >
+            <span
+              class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition"
+              [class.border-white/15]="activeLink.isActive"
+              [class.bg-white/10]="activeLink.isActive"
+              [class.border-slate-200]="!activeLink.isActive"
+              [class.bg-white]="!activeLink.isActive"
+            >
+              @switch (item.icon) {
+                @case ('dashboard') {
+                  <svg lucideLayoutDashboard size="15" aria-hidden="true"></svg>
+                }
+                @case ('organizations') {
+                  <svg lucideBuilding2 size="15" aria-hidden="true"></svg>
+                }
+                @case ('branches') {
+                  <svg lucideWorkflow size="15" aria-hidden="true"></svg>
+                }
+                @case ('venues') {
+                  <svg lucideStore size="15" aria-hidden="true"></svg>
+                }
+                @case ('clients') {
+                  <svg lucideUsersRound size="15" aria-hidden="true"></svg>
+                }
+                @case ('setup') {
+                  <svg lucideListChecks size="15" aria-hidden="true"></svg>
+                }
+              }
+            </span>
+            <span class="min-w-0 flex-1 truncate">{{ item.label }}</span>
+            @if (activeLink.isActive) {
+              <svg
+                lucideChevronRight
+                size="15"
+                aria-hidden="true"
+                class="shrink-0 opacity-80"
+              ></svg>
+            }
+          </a>
+        }
       </div>
     </nav>
+
+    <div class="absolute bottom-0 left-0 right-0 border-t border-slate-200 bg-slate-50/80 p-4">
+      <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+        Environment
+      </p>
+      <p class="mt-1 text-xs font-medium text-slate-600">Mock API · localhost:8787</p>
+    </div>
   </aside>
 
-  <div class="lg:pl-64">
-    <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/95 backdrop-blur">
-      <div class="flex min-h-16 flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between lg:px-6">
-        <nav class="flex gap-1 overflow-x-auto lg:hidden">
+  <div class="lg:pl-72">
+    <header
+      class="sticky top-0 z-10 border-b border-slate-200/80 bg-white/90 shadow-sm backdrop-blur"
+    >
+      <div
+        class="flex min-h-16 flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between lg:px-6"
+      >
+        <nav class="flex gap-1.5 overflow-x-auto pb-1 lg:hidden" aria-label="Primary navigation">
           @for (item of navItems; track item.path) {
             <a
               [routerLink]="item.path"
-              routerLinkActive="bg-slate-900 text-white"
+              routerLinkActive="border-slate-900 bg-slate-950 text-white"
               #mobileActiveLink="routerLinkActive"
-              [class.text-slate-700]="!mobileActiveLink.isActive"
+              [class.border-slate-200]="!mobileActiveLink.isActive"
               [class.bg-white]="!mobileActiveLink.isActive"
-              class="shrink-0 rounded-md border border-slate-200 px-3 py-2 text-sm font-medium"
+              [class.text-slate-700]="!mobileActiveLink.isActive"
+              class="shrink-0 rounded-xl border px-3 py-2 text-sm font-medium shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
             >
               {{ item.label }}
             </a>
           }
         </nav>
 
-        <div class="min-w-0 sm:ml-auto sm:text-right">
-          <p class="truncate text-sm font-semibold text-slate-950">
-            {{ authService.user()?.name || authService.user()?.email }}
-          </p>
-          <p class="truncate text-xs text-slate-500">
-            {{ authService.user()?.email }} / {{ authService.user()?.role }}
+        <div class="hidden min-w-0 lg:block">
+          <p class="text-sm font-semibold text-slate-950">Operations dashboard</p>
+          <p class="text-xs text-slate-500">
+            Manage onboarding, organizations, and sales visibility.
           </p>
         </div>
 
-        <button
-          type="button"
-          (click)="signOut()"
-          class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 sm:w-auto"
-        >
-          Sign out
-        </button>
+        <div class="flex items-center justify-between gap-3 sm:ml-auto sm:justify-end">
+          <div
+            class="min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 sm:text-right"
+          >
+            <p class="truncate text-sm font-semibold text-slate-950">
+              {{ authService.user()?.name || authService.user()?.email }}
+            </p>
+            <p class="truncate text-xs text-slate-500">
+              {{ authService.user()?.role || 'User' }} · {{ authService.user()?.email }}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            (click)="signOut()"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+          >
+            <svg lucideLogOut size="16" aria-hidden="true"></svg>
+            <span class="hidden sm:inline">Sign out</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main class="px-4 py-5 lg:px-6">
+    <main class="mx-auto max-w-[1500px] px-4 py-5 sm:py-6 lg:px-6">
       <router-outlet />
     </main>
   </div>

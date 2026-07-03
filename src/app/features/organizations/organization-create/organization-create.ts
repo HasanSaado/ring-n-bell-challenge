@@ -3,7 +3,18 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideArrowLeft } from '@lucide/angular';
+import {
+  LucideArrowLeft,
+  LucideBuilding2,
+  LucideCircleDollarSign,
+  LucideClock3,
+  LucideGlobe2,
+  LucideLoaderCircle,
+  LucideMail,
+  LucidePlus,
+  LucideSearch,
+  LucideUserRound,
+} from '@lucide/angular';
 import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 
 import { Client } from '../../../core/clients/client.models';
@@ -16,7 +27,22 @@ import { UiIconButtonComponent } from '../../../shared/ui/icon-button/ui-icon-bu
 @Component({
   selector: 'app-organization-create',
   standalone: true,
-  imports: [LucideArrowLeft, ReactiveFormsModule, UiButtonComponent, UiCardComponent, UiIconButtonComponent],
+  imports: [
+    LucideArrowLeft,
+    LucideBuilding2,
+    LucideCircleDollarSign,
+    LucideClock3,
+    LucideGlobe2,
+    LucideLoaderCircle,
+    LucideMail,
+    LucidePlus,
+    LucideSearch,
+    LucideUserRound,
+    ReactiveFormsModule,
+    UiButtonComponent,
+    UiCardComponent,
+    UiIconButtonComponent,
+  ],
   templateUrl: './organization-create.html',
 })
 export class OrganizationCreate {

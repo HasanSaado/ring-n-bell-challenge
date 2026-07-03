@@ -19,7 +19,7 @@ export class UiIconButtonComponent {
 
   get classes(): string {
     return [
-      'inline-flex h-8 w-8 items-center justify-center rounded-lg transition focus:outline-none focus:ring-2 focus:ring-slate-300 disabled:cursor-not-allowed disabled:opacity-55',
+      'inline-flex h-9 w-9 items-center justify-center rounded-xl border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55',
       this.variantClasses,
     ].join(' ');
   }
@@ -27,11 +27,11 @@ export class UiIconButtonComponent {
   private get variantClasses(): string {
     switch (this.variant) {
       case 'ghost':
-        return 'text-slate-600 hover:bg-slate-100 hover:text-slate-950';
+        return 'border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-950';
       case 'danger':
-        return 'border border-red-200 bg-red-50 text-red-700 hover:bg-red-100';
+        return 'border-red-200 bg-red-50 text-red-700 shadow-sm hover:border-red-300 hover:bg-red-100';
       case 'secondary':
-        return 'border border-slate-300 bg-white text-slate-700 shadow-sm hover:bg-slate-50';
+        return 'border-slate-200 bg-white text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950';
     }
   }
 }
