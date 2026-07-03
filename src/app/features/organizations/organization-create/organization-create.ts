@@ -22,7 +22,6 @@ import { ClientsApiService } from '../../../core/clients/clients-api.service';
 import { OrganizationsApiService } from '../../../core/organizations/organizations-api.service';
 import { UiButtonComponent } from '../../../shared/ui/button/ui-button';
 import { UiCardComponent } from '../../../shared/ui/card/ui-card';
-import { UiIconButtonComponent } from '../../../shared/ui/icon-button/ui-icon-button';
 
 @Component({
   selector: 'app-organization-create',
@@ -41,7 +40,6 @@ import { UiIconButtonComponent } from '../../../shared/ui/icon-button/ui-icon-bu
     ReactiveFormsModule,
     UiButtonComponent,
     UiCardComponent,
-    UiIconButtonComponent,
   ],
   templateUrl: './organization-create.html',
 })
