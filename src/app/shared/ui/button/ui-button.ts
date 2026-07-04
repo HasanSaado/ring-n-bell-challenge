@@ -20,7 +20,7 @@ export class UiButtonComponent {
 
   get classes(): string {
     return [
-      'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border font-semibold shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55',
+      'inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl border font-semibold shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55',
       this.size === 'sm' ? 'h-8 px-3 text-xs' : 'h-10 px-4 text-sm',
       this.variantClasses,
     ].join(' ');

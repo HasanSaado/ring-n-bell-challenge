@@ -8,7 +8,6 @@ import { Login } from './features/login/login';
 import { OrganizationCreate } from './features/organizations/organization-create/organization-create';
 import { OrganizationDetail } from './features/organizations/organization-detail/organization-detail';
 import { OrganizationList } from './features/organizations/organization-list/organization-list';
-import { Placeholder } from './features/placeholder/placeholder';
 import { VenueDetail } from './features/venues/venue-detail/venue-detail';
 import { VenueList } from './features/venues/venue-list/venue-list';
 import { AppShell } from './layout/app-shell/app-shell';
@@ -37,7 +36,10 @@ export const routes: Routes = [
       },
       { path: 'venues/:id', component: VenueDetail },
       { path: 'clients', component: ClientList },
-      { path: 'setup', component: Placeholder, data: { title: 'Setup' } },
+      {
+        path: 'setup',
+        loadComponent: () => import('./features/setup/setup-wizard').then((m) => m.SetupWizard),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

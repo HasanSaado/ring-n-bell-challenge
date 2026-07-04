@@ -1,0 +1,810 @@
+<section class="space-y-5">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="flex items-start gap-3">
+      <div
+        class="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm"
+      >
+        <svg lucideWorkflow size="20" aria-hidden="true"></svg>
+      </div>
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+          Sales workspace
+        </p>
+        <h2 class="mt-1 text-2xl font-semibold tracking-tight text-slate-950">Setup</h2>
+        <p class="mt-1 max-w-2xl text-sm text-slate-600">
+          Create the required client, ownership, and venue records in one guided flow.
+        </p>
+      </div>
+    </div>
+
+    <ui-button
+      variant="secondary"
+      type="button"
+      (pressed)="requestCancel()"
+      [disabled]="wizardState.finishing()"
+    >
+      Cancel
+    </ui-button>
+  </div>
+
+  <div class="grid gap-3 lg:grid-cols-2">
+    <button
+      type="button"
+      (click)="selectPath('organization')"
+      class="cursor-pointer rounded-xl border bg-white p-4 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+      [class.border-slate-950]="isOrganizationPath"
+      [class.border-slate-200]="!isOrganizationPath"
+      [class.ring-2]="isOrganizationPath"
+      [class.ring-slate-200]="isOrganizationPath"
+    >
+      <span class="flex items-start gap-3">
+        <span
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700"
+        >
+          <svg lucideBuilding2 size="17" aria-hidden="true"></svg>
+        </span>
+        <span class="min-w-0">
+          <span class="block text-sm font-semibold text-slate-950">Organization setup</span>
+          <span class="mt-1 block text-sm text-slate-600">
+            Creates a client, organization, branch, and venue.
+          </span>
+        </span>
+      </span>
+    </button>
+
+    <button
+      type="button"
+      (click)="selectPath('standalone')"
+      class="cursor-pointer rounded-xl border bg-white p-4 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+      [class.border-slate-950]="isStandalonePath"
+      [class.border-slate-200]="!isStandalonePath"
+      [class.ring-2]="isStandalonePath"
+      [class.ring-slate-200]="isStandalonePath"
+    >
+      <span class="flex items-start gap-3">
+        <span
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700"
+        >
+          <svg lucideStore size="17" aria-hidden="true"></svg>
+        </span>
+        <span class="min-w-0">
+          <span class="block text-sm font-semibold text-slate-950">Standalone venue</span>
+          <span class="mt-1 block text-sm text-slate-600">
+            Creates a client and standalone venue only.
+          </span>
+        </span>
+      </span>
+    </button>
+  </div>
+
+  @if (wizardState.selectedPath()) {
+    <ui-card padding="sm">
+      <ol class="grid gap-2 sm:grid-cols-3 lg:grid-cols-5" aria-label="Setup progress">
+        @for (step of wizardState.currentSteps(); track step.id; let index = $index) {
+          <li>
+            <button
+              type="button"
+              (click)="goToStepperStep(index)"
+              [disabled]="!isStepReachable(index)"
+              [attr.aria-disabled]="!isStepReachable(index)"
+              class="flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+              [class.border-slate-950]="index === wizardState.currentStepIndex()"
+              [class.bg-slate-950]="index === wizardState.currentStepIndex()"
+              [class.text-white]="index === wizardState.currentStepIndex()"
+              [class.border-emerald-200]="isStepComplete(index)"
+              [class.bg-emerald-50]="isStepComplete(index)"
+              [class.text-emerald-800]="isStepComplete(index)"
+              [class.border-slate-200]="
+                index !== wizardState.currentStepIndex() && !isStepComplete(index)
+              "
+              [class.bg-white]="index !== wizardState.currentStepIndex() && !isStepComplete(index)"
+              [class.text-slate-700]="
+                index !== wizardState.currentStepIndex() && !isStepComplete(index)
+              "
+              [class.cursor-not-allowed]="!isStepReachable(index)"
+              [class.opacity-55]="!isStepReachable(index)"
+            >
+              <span
+                class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-xs font-semibold"
+                [class.border-white/20]="index === wizardState.currentStepIndex()"
+                [class.bg-white/10]="index === wizardState.currentStepIndex()"
+                [class.border-emerald-200]="isStepComplete(index)"
+                [class.bg-white]="isStepComplete(index)"
+                [class.border-slate-200]="
+                  index !== wizardState.currentStepIndex() && !isStepComplete(index)
+                "
+                [class.bg-slate-50]="
+                  index !== wizardState.currentStepIndex() && !isStepComplete(index)
+                "
+              >
+                @if (isStepComplete(index)) {
+                  <svg lucideCheck size="13" aria-hidden="true"></svg>
+                } @else {
+                  {{ index + 1 }}
+                }
+              </span>
+              <span class="min-w-0 truncate font-semibold">{{ step.label }}</span>
+            </button>
+          </li>
+        }
+      </ol>
+    </ui-card>
+
+    <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <ui-card>
+        @switch (currentStepId) {
+          @case ('client') {
+            <form [formGroup]="clientForm" class="space-y-5">
+              <div class="flex items-center gap-2">
+                <span
+                  class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700"
+                >
+                  <svg lucideUserRound size="16" aria-hidden="true"></svg>
+                </span>
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-950">Client</h3>
+                  <p class="text-xs text-slate-500">Primary contact for the setup.</p>
+                </div>
+              </div>
+
+              <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Name</span>
+                  <input
+                    type="text"
+                    formControlName="name"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                    placeholder="Client name"
+                  />
+                  @if (clientNameRequiredError) {
+                    <span class="mt-1.5 block text-xs font-medium text-red-700"
+                      >Name is required.</span
+                    >
+                  }
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Email</span>
+                  <input
+                    type="email"
+                    formControlName="email"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                    placeholder="client@example.com"
+                  />
+                  @if (clientEmailRequiredError) {
+                    <span class="mt-1.5 block text-xs font-medium text-red-700"
+                      >Email is required.</span
+                    >
+                  } @else if (clientEmailFormatError) {
+                    <span class="mt-1.5 block text-xs font-medium text-red-700"
+                      >Enter a valid email.</span
+                    >
+                  }
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Phone</span>
+                  <input
+                    type="tel"
+                    formControlName="phone"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  />
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Company</span>
+                  <input
+                    type="text"
+                    formControlName="company"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  />
+                </label>
+              </div>
+
+              <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
+                <input
+                  type="checkbox"
+                  formControlName="enabled"
+                  class="h-4 w-4 rounded border-slate-300 text-slate-950 focus:ring-slate-400"
+                />
+                Enabled client
+              </label>
+            </form>
+          }
+
+          @case ('organization') {
+            <form [formGroup]="organizationForm" class="space-y-5">
+              <div class="flex items-center gap-2">
+                <span
+                  class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700"
+                >
+                  <svg lucideBuilding2 size="16" aria-hidden="true"></svg>
+                </span>
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-950">Organization</h3>
+                  <p class="text-xs text-slate-500">Created after the client is available.</p>
+                </div>
+              </div>
+
+              <label class="block">
+                <span class="text-sm font-medium text-slate-700">Name</span>
+                <input
+                  type="text"
+                  formControlName="name"
+                  class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  placeholder="Organization name"
+                />
+                @if (organizationNameRequiredError) {
+                  <span class="mt-1.5 block text-xs font-medium text-red-700"
+                    >Name is required.</span
+                  >
+                }
+              </label>
+
+              <div class="grid gap-4 sm:grid-cols-3">
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Country</span>
+                  <input
+                    type="text"
+                    formControlName="country"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  />
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Timezone</span>
+                  <input
+                    type="text"
+                    formControlName="timezone"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  />
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Currency</span>
+                  <input
+                    type="text"
+                    formControlName="currency"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  />
+                </label>
+              </div>
+
+              <label class="block">
+                <span class="text-sm font-medium text-slate-700">Billing email</span>
+                <input
+                  type="email"
+                  formControlName="billingEmail"
+                  class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  placeholder="billing@example.com"
+                />
+                @if (organizationBillingEmailFormatError) {
+                  <span class="mt-1.5 block text-xs font-medium text-red-700"
+                    >Enter a valid email.</span
+                  >
+                }
+              </label>
+            </form>
+          }
+
+          @case ('branch') {
+            <form [formGroup]="branchForm" class="space-y-5">
+              <div class="flex items-center gap-2">
+                <span
+                  class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700"
+                >
+                  <svg lucideWorkflow size="16" aria-hidden="true"></svg>
+                </span>
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-950">Branch</h3>
+                  <p class="text-xs text-slate-500">Created under the new organization.</p>
+                </div>
+              </div>
+
+              <label class="block">
+                <span class="text-sm font-medium text-slate-700">Name</span>
+                <input
+                  type="text"
+                  formControlName="name"
+                  class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  placeholder="Branch name"
+                />
+                @if (branchNameRequiredError) {
+                  <span class="mt-1.5 block text-xs font-medium text-red-700"
+                    >Name is required.</span
+                  >
+                }
+              </label>
+
+              <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">City</span>
+                  <input
+                    type="text"
+                    formControlName="city"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  />
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Country</span>
+                  <input
+                    type="text"
+                    formControlName="country"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  />
+                </label>
+              </div>
+
+              <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
+                <input
+                  type="checkbox"
+                  formControlName="active"
+                  class="h-4 w-4 rounded border-slate-300 text-slate-950 focus:ring-slate-400"
+                />
+                Active branch
+              </label>
+            </form>
+          }
+
+          @case ('venue') {
+            <form [formGroup]="venueForm" class="space-y-5">
+              <div class="flex items-center gap-2">
+                <span
+                  class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700"
+                >
+                  <svg lucideStore size="16" aria-hidden="true"></svg>
+                </span>
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-950">Venue</h3>
+                  <p class="text-xs text-slate-500">
+                    Ownership and placement come from the created records.
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Name</span>
+                  <input
+                    type="text"
+                    formControlName="name"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                    placeholder="Venue name"
+                  />
+                  @if (venueNameRequiredError) {
+                    <span class="mt-1.5 block text-xs font-medium text-red-700"
+                      >Name is required.</span
+                    >
+                  }
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Type</span>
+                  <select
+                    formControlName="type"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  >
+                    <option value="">Select type</option>
+                    @for (type of typeOptions; track type) {
+                      <option [value]="type">{{ type }}</option>
+                    }
+                  </select>
+                  @if (venueTypeRequiredError) {
+                    <span class="mt-1.5 block text-xs font-medium text-red-700"
+                      >Type is required.</span
+                    >
+                  }
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Timezone</span>
+                  <input
+                    type="text"
+                    formControlName="timezone"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  />
+                  @if (venueTimezoneRequiredError) {
+                    <span class="mt-1.5 block text-xs font-medium text-red-700"
+                      >Timezone is required.</span
+                    >
+                  }
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Currency</span>
+                  <input
+                    type="text"
+                    formControlName="currency"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  />
+                  @if (venueCurrencyRequiredError) {
+                    <span class="mt-1.5 block text-xs font-medium text-red-700"
+                      >Currency is required.</span
+                    >
+                  }
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">City</span>
+                  <input
+                    type="text"
+                    formControlName="city"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  />
+                </label>
+
+                <label class="block">
+                  <span class="text-sm font-medium text-slate-700">Country</span>
+                  <input
+                    type="text"
+                    formControlName="country"
+                    class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                  />
+                </label>
+              </div>
+            </form>
+          }
+
+          @case ('review') {
+            <div class="space-y-5">
+              <div class="flex items-center gap-2">
+                <span
+                  class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700"
+                >
+                  <svg lucideCheck size="16" aria-hidden="true"></svg>
+                </span>
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-950">Review</h3>
+                  <p class="text-xs text-slate-500">
+                    Confirm the grouped setup details before finishing.
+                  </p>
+                </div>
+              </div>
+
+              <div class="space-y-4">
+                <section class="rounded-xl border border-slate-200 p-4">
+                  <div class="flex items-center justify-between gap-3">
+                    <h4 class="text-sm font-semibold text-slate-950">Client</h4>
+                    <button
+                      type="button"
+                      (click)="editStep('client')"
+                      class="text-sm font-semibold text-slate-700 underline-offset-4 hover:text-slate-950 hover:underline"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                  <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Name
+                      </dt>
+                      <dd class="mt-1 text-slate-950">
+                        {{ display(clientForm.controls.name.value) }}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Email
+                      </dt>
+                      <dd class="mt-1 text-slate-950">
+                        {{ display(clientForm.controls.email.value) }}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Phone
+                      </dt>
+                      <dd class="mt-1 text-slate-950">
+                        {{ display(clientForm.controls.phone.value) }}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Company
+                      </dt>
+                      <dd class="mt-1 text-slate-950">
+                        {{ display(clientForm.controls.company.value) }}
+                      </dd>
+                    </div>
+                  </dl>
+                </section>
+
+                @if (isOrganizationPath) {
+                  <section class="rounded-xl border border-slate-200 p-4">
+                    <div class="flex items-center justify-between gap-3">
+                      <h4 class="text-sm font-semibold text-slate-950">Organization</h4>
+                      <button
+                        type="button"
+                        (click)="editStep('organization')"
+                        class="text-sm font-semibold text-slate-700 underline-offset-4 hover:text-slate-950 hover:underline"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                    <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                      <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Name
+                        </dt>
+                        <dd class="mt-1 text-slate-950">
+                          {{ display(organizationForm.controls.name.value) }}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Billing email
+                        </dt>
+                        <dd class="mt-1 text-slate-950">
+                          {{ display(organizationForm.controls.billingEmail.value) }}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Timezone
+                        </dt>
+                        <dd class="mt-1 text-slate-950">
+                          {{ display(organizationForm.controls.timezone.value) }}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Currency
+                        </dt>
+                        <dd class="mt-1 text-slate-950">
+                          {{ display(organizationForm.controls.currency.value) }}
+                        </dd>
+                      </div>
+                    </dl>
+                  </section>
+
+                  <section class="rounded-xl border border-slate-200 p-4">
+                    <div class="flex items-center justify-between gap-3">
+                      <h4 class="text-sm font-semibold text-slate-950">Branch</h4>
+                      <button
+                        type="button"
+                        (click)="editStep('branch')"
+                        class="text-sm font-semibold text-slate-700 underline-offset-4 hover:text-slate-950 hover:underline"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                    <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                      <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Name
+                        </dt>
+                        <dd class="mt-1 text-slate-950">
+                          {{ display(branchForm.controls.name.value) }}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          City
+                        </dt>
+                        <dd class="mt-1 text-slate-950">
+                          {{ display(branchForm.controls.city.value) }}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Country
+                        </dt>
+                        <dd class="mt-1 text-slate-950">
+                          {{ display(branchForm.controls.country.value) }}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Status
+                        </dt>
+                        <dd class="mt-1 text-slate-950">
+                          {{ branchForm.controls.active.value ? 'Active' : 'Inactive' }}
+                        </dd>
+                      </div>
+                    </dl>
+                  </section>
+                }
+
+                <section class="rounded-xl border border-slate-200 p-4">
+                  <div class="flex items-center justify-between gap-3">
+                    <h4 class="text-sm font-semibold text-slate-950">Venue</h4>
+                    <button
+                      type="button"
+                      (click)="editStep('venue')"
+                      class="text-sm font-semibold text-slate-700 underline-offset-4 hover:text-slate-950 hover:underline"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                  <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Name
+                      </dt>
+                      <dd class="mt-1 text-slate-950">
+                        {{ display(venueForm.controls.name.value) }}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Type
+                      </dt>
+                      <dd class="mt-1 text-slate-950">
+                        {{ display(venueForm.controls.type.value) }}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Timezone
+                      </dt>
+                      <dd class="mt-1 text-slate-950">
+                        {{ display(venueForm.controls.timezone.value) }}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Currency
+                      </dt>
+                      <dd class="mt-1 text-slate-950">
+                        {{ display(venueForm.controls.currency.value) }}
+                      </dd>
+                    </div>
+                  </dl>
+                </section>
+              </div>
+
+              @if (finishErrorMessage()) {
+                <div
+                  class="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800"
+                >
+                  <p class="font-semibold">{{ failedEntityLabel }} step failed</p>
+                  <p class="mt-1">{{ finishErrorMessage() }}</p>
+                  @if (failureErrorDetail) {
+                    <p class="mt-1 text-xs text-red-700">{{ failureErrorDetail }}</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+        }
+
+        <div
+          class="mt-6 flex flex-col gap-2 border-t border-slate-200 pt-5 sm:flex-row sm:justify-between"
+        >
+          <ui-button
+            variant="secondary"
+            type="button"
+            (pressed)="goBack()"
+            [disabled]="!canGoBack || wizardState.finishing()"
+          >
+            <svg lucideArrowLeft size="16" aria-hidden="true"></svg>
+            Back
+          </ui-button>
+
+          <div class="flex justify-end gap-2">
+            <ui-button
+              variant="secondary"
+              type="button"
+              (pressed)="requestCancel()"
+              [disabled]="wizardState.finishing()"
+            >
+              Cancel
+            </ui-button>
+
+            @if (isReviewStep) {
+              <ui-button
+                variant="primary"
+                type="button"
+                (pressed)="finish()"
+                [disabled]="wizardState.finishing()"
+              >
+                @if (wizardState.finishing()) {
+                  <svg lucideLoaderCircle size="16" aria-hidden="true" class="animate-spin"></svg>
+                  Finishing...
+                } @else {
+                  {{ finishButtonLabel }}
+                  <svg lucideChevronRight size="16" aria-hidden="true"></svg>
+                }
+              </ui-button>
+            } @else {
+              <ui-button
+                variant="primary"
+                type="button"
+                (pressed)="goNext()"
+                [disabled]="nextDisabled"
+              >
+                Next
+                <svg lucideChevronRight size="16" aria-hidden="true"></svg>
+              </ui-button>
+            }
+          </div>
+        </div>
+      </ui-card>
+
+      <aside class="space-y-3 lg:sticky lg:top-24 lg:self-start">
+        <ui-card padding="sm">
+          <h3 class="text-sm font-semibold text-slate-950">Setup path</h3>
+          <p class="mt-1 text-sm text-slate-600">
+            {{ isOrganizationPath ? 'Organization setup' : 'Standalone venue' }}
+          </p>
+          <div class="mt-4 space-y-2">
+            @for (step of wizardState.currentSteps(); track step.id; let index = $index) {
+              <div class="flex items-center gap-2 text-sm">
+                <span
+                  class="flex h-6 w-6 items-center justify-center rounded-lg border text-xs font-semibold"
+                  [class.border-emerald-200]="isStepComplete(index)"
+                  [class.bg-emerald-50]="isStepComplete(index)"
+                  [class.text-emerald-800]="isStepComplete(index)"
+                  [class.border-slate-200]="!isStepComplete(index)"
+                  [class.bg-slate-50]="!isStepComplete(index)"
+                  [class.text-slate-600]="!isStepComplete(index)"
+                >
+                  @if (isStepComplete(index)) {
+                    <svg lucideCheck size="13" aria-hidden="true"></svg>
+                  } @else {
+                    {{ index + 1 }}
+                  }
+                </span>
+                <span
+                  class="font-medium"
+                  [class.text-slate-950]="index === wizardState.currentStepIndex()"
+                  [class.text-slate-600]="index !== wizardState.currentStepIndex()"
+                >
+                  {{ step.label }}
+                </span>
+              </div>
+            }
+          </div>
+        </ui-card>
+      </aside>
+    </div>
+  } @else {
+    <ui-card>
+      <div class="py-8 text-center">
+        <div
+          class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-500"
+        >
+          <svg lucideWorkflow size="22" aria-hidden="true"></svg>
+        </div>
+        <h3 class="mt-4 text-base font-semibold text-slate-950">Choose a setup path</h3>
+        <p class="mt-1 text-sm text-slate-500">The wizard steps appear after selecting a path.</p>
+      </div>
+    </ui-card>
+  }
+
+  @if (showCancelConfirmation()) {
+    <div
+      class="fixed inset-0 z-30 flex items-center justify-center bg-slate-950/35 px-4 py-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Cancel setup"
+    >
+      <div class="w-full max-w-md rounded-xl border border-slate-200 bg-white shadow-xl">
+        <div class="flex items-start justify-between gap-3 border-b border-slate-200 px-5 py-4">
+          <div>
+            <h3 class="text-base font-semibold text-slate-950">Cancel setup</h3>
+            <p class="mt-1 text-sm text-slate-600">
+              Discard the information entered in this wizard?
+            </p>
+          </div>
+          <button
+            type="button"
+            (click)="closeCancelConfirmation()"
+            aria-label="Close cancel confirmation"
+            title="Close cancel confirmation"
+            class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-slate-500 transition hover:border-slate-200 hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+          >
+            <svg lucideX size="16" aria-hidden="true"></svg>
+          </button>
+        </div>
+        <div class="flex justify-end gap-2 px-5 py-4">
+          <ui-button variant="secondary" type="button" (pressed)="closeCancelConfirmation()">
+            Keep editing
+          </ui-button>
+          <ui-button variant="danger" type="button" (pressed)="cancelWizard()"> Discard </ui-button>
+        </div>
+      </div>
+    </div>
+  }
+</section>
