@@ -67,12 +67,18 @@ class FakeOrganizationsApiService {
 
 class FakeBranchesApiService {
   readonly createRequests: CreateBranchRequest[] = [];
+  failNextCreate = false;
 
   constructor(private readonly callLog: string[]) {}
 
   createBranch(body: CreateBranchRequest): Observable<Branch> {
     this.callLog.push('branch');
     this.createRequests.push(body);
+
+    if (this.failNextCreate) {
+      this.failNextCreate = false;
+      return throwError(() => new Error('Branch create failed.'));
+    }
 
     return of({
       id: `branch_${this.createRequests.length}`,
@@ -259,6 +265,32 @@ describe('WizardStateService', () => {
     expect(callLog).toEqual(['client', 'organization', 'branch', 'venue', 'venue']);
     expect(fakeVenuesApi.createRequests.at(-1)?.orgId).toBe('organization_1');
     expect(fakeVenuesApi.createRequests.at(-1)?.branchId).toBe('branch_1');
+  });
+
+  it('does not recreate client or organization when retrying after branch failure', async () => {
+    fillOrganizationWizard();
+    fakeBranchesApi.failNextCreate = true;
+
+    await expect(service.finish()).rejects.toThrow(
+      "We couldn't create the branch. Something went wrong. Please try again.",
+    );
+
+    expect(service.failedStep()).toBe('branch');
+    expect(service.createdEntities()).toEqual({
+      clientId: 'client_1',
+      organizationId: 'organization_1',
+    });
+
+    const venueId = await service.finish();
+
+    expect(venueId).toBe('venue_1');
+    expect(fakeClientsApi.createRequests).toHaveLength(1);
+    expect(fakeOrganizationsApi.createRequests).toHaveLength(1);
+    expect(fakeBranchesApi.createRequests).toHaveLength(2);
+    expect(fakeVenuesApi.createRequests).toHaveLength(1);
+    expect(callLog).toEqual(['client', 'organization', 'branch', 'branch', 'venue']);
+    expect(fakeBranchesApi.createRequests.at(-1)?.orgId).toBe('organization_1');
+    expect(fakeVenuesApi.createRequests.at(-1)?.branchId).toBe('branch_2');
   });
 
   it('stores a friendly client message for network failures', async () => {

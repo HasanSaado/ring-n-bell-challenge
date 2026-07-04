@@ -117,6 +117,20 @@ describe('SetupWizard', () => {
     expect(component.currentStepId).toBe('client');
   });
 
+  it('keeps Back enabled when the current step becomes invalid', () => {
+    component.selectPath('organization');
+    component.clientForm.controls.name.setValue('Maya Owner');
+    component.clientForm.controls.email.setValue('maya@example.test');
+    fixture.detectChanges();
+
+    findButton('Next')?.click();
+    fixture.detectChanges();
+
+    expect(component.currentStepId).toBe('organization');
+    expect(component.organizationForm.invalid).toBe(true);
+    expect(findButton('Back')?.disabled).toBe(false);
+  });
+
   it('preserves form values when navigating back', () => {
     component.selectPath('organization');
     component.clientForm.controls.name.setValue('Maya Owner');
@@ -164,6 +178,56 @@ describe('SetupWizard', () => {
     fixture.detectChanges();
 
     expect(component.currentStepId).toBe('branch');
+  });
+
+  it('shows grouped organization path review data', () => {
+    fillOrganizationForms();
+    component.wizardState.jumpToStep(4);
+    fixture.detectChanges();
+
+    expect(component.currentStepId).toBe('review');
+    expect(getReviewSectionTitles()).toEqual(['Client', 'Organization', 'Branch', 'Venue']);
+    expect(getReviewSectionText('Client')).toContain('Maya Owner');
+    expect(getReviewSectionText('Client')).toContain('maya@example.test');
+    expect(getReviewSectionText('Organization')).toContain('Harbor Group');
+    expect(getReviewSectionText('Organization')).toContain('billing@example.test');
+    expect(getReviewSectionText('Branch')).toContain('Downtown Branch');
+    expect(getReviewSectionText('Branch')).toContain('Beirut');
+    expect(getReviewSectionText('Venue')).toContain('Harbor Lounge');
+    expect(getReviewSectionText('Venue')).toContain('restaurant');
+  });
+
+  it('shows only client and venue groups for standalone review', () => {
+    fillStandaloneForms();
+    component.wizardState.jumpToStep(2);
+    fixture.detectChanges();
+
+    expect(component.currentStepId).toBe('review');
+    expect(getReviewSectionTitles()).toEqual(['Client', 'Venue']);
+    expect(getReviewSectionText('Client')).toContain('Maya Owner');
+    expect(getReviewSectionText('Venue')).toContain('Harbor Lounge');
+  });
+
+  it('asks for confirmation before canceling after data is entered', () => {
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    component.selectPath('standalone');
+    component.clientForm.controls.name.setValue('Maya Owner');
+    fixture.detectChanges();
+
+    findButton('Cancel')?.click();
+    fixture.detectChanges();
+
+    expect(navigateSpy).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('Discard the information entered in this wizard?');
+
+    findButton('Keep editing')?.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).not.toContain('Discard the information entered in this wizard?');
+    expect(component.wizardState.selectedPath()).toBe('standalone');
+    expect(component.clientForm.controls.name.value).toBe('Maya Owner');
   });
 
   it('resets wizard state after successful finish redirect', async () => {
@@ -254,16 +318,46 @@ describe('SetupWizard', () => {
   }
 
   function findReviewEditButton(sectionTitle: string): HTMLButtonElement | null {
-    const sections = Array.from(fixture.nativeElement.querySelectorAll('section')) as HTMLElement[];
-    const section = sections.find((item) => item.querySelector('h4')?.textContent?.trim() === sectionTitle);
+    const section = findReviewSection(sectionTitle);
 
     return section?.querySelector('button') ?? null;
+  }
+
+  function getReviewSectionTitles(): string[] {
+    return getReviewSections().map((section) => section.querySelector('h4')?.textContent?.trim() ?? '');
+  }
+
+  function getReviewSectionText(sectionTitle: string): string {
+    return findReviewSection(sectionTitle)?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+  }
+
+  function getReviewSections(): HTMLElement[] {
+    return Array.from(fixture.nativeElement.querySelectorAll('section section')) as HTMLElement[];
+  }
+
+  function findReviewSection(sectionTitle: string): HTMLElement | null {
+    return getReviewSections().find((item) => item.querySelector('h4')?.textContent?.trim() === sectionTitle) ?? null;
   }
 
   function fillStandaloneForms(): void {
     component.selectPath('standalone');
     component.clientForm.controls.name.setValue('Maya Owner');
     component.clientForm.controls.email.setValue('maya@example.test');
+    component.venueForm.controls.name.setValue('Harbor Lounge');
+    component.venueForm.controls.type.setValue('restaurant');
+    fixture.detectChanges();
+  }
+
+  function fillOrganizationForms(): void {
+    component.selectPath('organization');
+    component.clientForm.controls.name.setValue('Maya Owner');
+    component.clientForm.controls.email.setValue('maya@example.test');
+    component.clientForm.controls.phone.setValue('+961000000');
+    component.clientForm.controls.company.setValue('Harbor Group');
+    component.organizationForm.controls.name.setValue('Harbor Group');
+    component.organizationForm.controls.billingEmail.setValue('billing@example.test');
+    component.branchForm.controls.name.setValue('Downtown Branch');
+    component.branchForm.controls.city.setValue('Beirut');
     component.venueForm.controls.name.setValue('Harbor Lounge');
     component.venueForm.controls.type.setValue('restaurant');
     fixture.detectChanges();
