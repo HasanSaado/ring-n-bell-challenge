@@ -16,6 +16,15 @@
         </p>
       </div>
     </div>
+
+    <button
+      type="button"
+      (click)="openCreateClient()"
+      class="inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-950 bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm transition hover:border-slate-800 hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+    >
+      <svg lucidePlus size="16" aria-hidden="true"></svg>
+      Create Client
+    </button>
   </div>
 
   <div class="grid gap-3 md:grid-cols-3">
@@ -201,6 +210,11 @@
                     <div class="min-w-0">
                       <div class="font-semibold text-slate-950">{{ client.name }}</div>
                       <div class="mt-0.5 font-mono text-xs text-slate-500">{{ client.id }}</div>
+                      @if (getRowError(client.id); as rowError) {
+                        <div class="mt-1 text-xs font-medium text-red-700">
+                          {{ rowError }}
+                        </div>
+                      }
                     </div>
                   </div>
                 </td>
@@ -245,19 +259,20 @@
                   <div class="flex justify-end gap-1.5">
                     <button
                       type="button"
-                      disabled
+                      (click)="openEditClient(client)"
                       aria-label="Edit client"
                       title="Edit client"
-                      class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-slate-300 transition disabled:cursor-not-allowed"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-slate-500 transition hover:border-slate-200 hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
                     >
                       <svg lucidePencil size="16" aria-hidden="true"></svg>
                     </button>
                     <button
                       type="button"
-                      disabled
+                      (click)="confirmDeleteClient(client)"
+                      [disabled]="isDeleting(client.id)"
                       aria-label="Delete client"
                       title="Delete client"
-                      class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-slate-300 transition disabled:cursor-not-allowed"
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-red-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55"
                     >
                       <svg lucideTrash2 size="16" aria-hidden="true"></svg>
                     </button>
@@ -311,4 +326,138 @@
       </div>
     </div>
   </ui-card>
+
+  @if (formMode()) {
+    <div
+      class="fixed inset-0 z-30 flex items-center justify-center bg-slate-950/35 px-4 py-6"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="formTitle"
+    >
+      <div class="w-full max-w-xl rounded-xl border border-slate-200 bg-white shadow-xl">
+        <div class="flex items-start justify-between gap-3 border-b border-slate-200 px-5 py-4">
+          <div>
+            <h3 class="text-base font-semibold text-slate-950">{{ formTitle }}</h3>
+            <p class="mt-1 text-sm text-slate-500">Manage client contact and account status.</p>
+          </div>
+          <button
+            type="button"
+            (click)="closeClientForm()"
+            aria-label="Close client dialog"
+            title="Close client dialog"
+            class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-slate-500 transition hover:border-slate-200 hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+          >
+            <svg lucideX size="16" aria-hidden="true"></svg>
+          </button>
+        </div>
+
+        <form [formGroup]="clientForm" (ngSubmit)="submitClient()" class="space-y-4 px-5 py-4">
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Name</span>
+            <input
+              type="text"
+              formControlName="name"
+              class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+              placeholder="Client name"
+            />
+            @if (nameRequiredError) {
+              <span class="mt-1.5 block text-xs font-medium text-red-700">Name is required.</span>
+            }
+          </label>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Email</span>
+            <input
+              type="email"
+              formControlName="email"
+              class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+              placeholder="client@example.com"
+            />
+            @if (emailRequiredError) {
+              <span class="mt-1.5 block text-xs font-medium text-red-700">Email is required.</span>
+            } @else if (emailFormatError) {
+              <span class="mt-1.5 block text-xs font-medium text-red-700">Enter a valid email.</span>
+            }
+          </label>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Phone</span>
+              <input
+                type="tel"
+                formControlName="phone"
+                class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+              />
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Company</span>
+              <input
+                type="text"
+                formControlName="company"
+                class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+              />
+            </label>
+          </div>
+
+          <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
+            <input
+              type="checkbox"
+              formControlName="enabled"
+              class="h-4 w-4 rounded border-slate-300 text-slate-950 focus:ring-slate-400"
+            />
+            Enabled client
+          </label>
+
+          @if (formErrorMessage()) {
+            <div
+              class="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800"
+            >
+              {{ formErrorMessage() }}
+            </div>
+          }
+
+          <div class="flex justify-end gap-2 border-t border-slate-200 pt-4">
+            <ui-button variant="secondary" type="button" (pressed)="closeClientForm()">
+              Cancel
+            </ui-button>
+            <ui-button type="submit" variant="primary" [disabled]="clientForm.invalid || saving()">
+              {{ saving() ? 'Saving...' : formSubmitLabel }}
+            </ui-button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (deleteTarget(); as client) {
+    <div
+      class="fixed inset-0 z-30 flex items-center justify-center bg-slate-950/35 px-4 py-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Delete client"
+    >
+      <div class="w-full max-w-md rounded-xl border border-slate-200 bg-white shadow-xl">
+        <div class="border-b border-slate-200 px-5 py-4">
+          <h3 class="text-base font-semibold text-slate-950">Delete client</h3>
+          <p class="mt-1 text-sm text-slate-600">
+            Delete {{ client.name }}? This action cannot be undone.
+          </p>
+        </div>
+        <div class="flex justify-end gap-2 px-5 py-4">
+          <ui-button variant="secondary" type="button" (pressed)="cancelDeleteClient()">
+            Cancel
+          </ui-button>
+          <ui-button
+            variant="danger"
+            type="button"
+            (pressed)="deleteClient()"
+            [disabled]="isDeleting(client.id)"
+          >
+            {{ isDeleting(client.id) ? 'Deleting...' : 'Delete' }}
+          </ui-button>
+        </div>
+      </div>
+    </div>
+  }
 </section>
