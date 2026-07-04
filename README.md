@@ -1,59 +1,125 @@
-# SalesPortal
+# Ring n Bring Sales Portal
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.5.
+Angular front-end assessment for a sales workspace. The app uses the provided mock API and implements login, dashboard, organization, branch, venue, client, and setup wizard workflows.
 
-## Development server
+## Versions
 
-To start a local development server, run:
+- Angular: `22.0.5`
+- Angular CLI: `22.0.5`
+- Node.js: `24.15.0`
+- npm: `11.12.1`
 
-```bash
-ng serve
+## API
+
+The front end expects the mock API to be running separately at:
+
+```text
+http://localhost:8787/api
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+This value is configured in `src/environments/environment.ts` as `environment.apiBaseUrl` and should remain unchanged for the assessment.
 
-## Code scaffolding
+## Setup
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Start the mock API first from the assessment mock API project:
 
 ```bash
-ng generate --help
+npm install
+npm start
 ```
 
-## Building
-
-To build the project run:
+Then start the Angular app from this repository:
 
 ```bash
-ng build
+npm install
+npm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Open:
 
-## Running unit tests
+```text
+http://localhost:4200
+```
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Login
+
+Use the assessment credentials:
+
+```text
+Email: admin@example.test
+Password: assessment
+```
+
+## Checks
+
+Run the production build:
 
 ```bash
-ng test
+npm run build
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+Run unit/component tests:
 
 ```bash
-ng e2e
+npm test
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Architecture Notes
 
-## Additional Resources
+- API calls are kept in typed services under `src/app/core/*`.
+- `ApiClient` centralizes base URL handling, query param cleanup, and `{ data }` response unwrapping.
+- Feature services normalize API response shapes into front-end models where needed.
+- Auth uses an interceptor to attach the stored token to API requests.
+- The setup wizard uses a dedicated `WizardStateService` to hold selected path, current step, form values, created entity IDs, progress, and failure state.
+- Wizard finish composes existing typed services instead of calling a dedicated wizard endpoint.
+- Partial-failure retry is ID-aware: once an entity is created, its ID is stored and later retries skip that entity instead of recreating it.
+- Wizard error formatting avoids exposing raw network messages such as `Failed to fetch` and shows a friendly failed-step message.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Completed Scope
+
+- Login with guarded routes.
+- Dashboard summary.
+- Organizations list, create, detail, and status update with rollback.
+- Branches list, create, edit, delete confirmation, and dependency-error handling.
+- Venues list, create, detail, status update with rollback, filtering, sorting, pagination, and retry states.
+- Clients list, create, edit, delete confirmation, and dependency-error handling.
+- Setup Wizard:
+  - Organization path: Client -> Organization -> Branch -> Venue -> Review.
+  - Standalone path: Client -> Venue -> Review.
+  - Required field validation and guarded forward navigation.
+  - Back navigation preserving form state.
+  - Grouped review with Edit links.
+  - Sequential finish flow.
+  - Partial-failure retry without recreating successful entities.
+  - Success redirect to `/venues/:id` and state reset after navigation.
+
+## Intentional Cuts
+
+The following items are intentionally out of scope for this assessment build:
+
+- Serials.
+- Renewals page.
+- Audit logs.
+- Clone.
+- Migration.
+- Staff CRUD.
+- Venue delete.
+
+## Known Limitations
+
+- The mock API is not included in this front-end repository and must be run separately.
+- No end-to-end framework is configured; coverage is focused unit/component testing with mocked typed services.
+- The current production build succeeds but emits an initial bundle budget warning.
+
+## Manual QA Checklist
+
+- Start the mock API at `http://localhost:8787/api`.
+- Start the Angular app with `npm start`.
+- Log in with `admin@example.test` / `assessment`.
+- Confirm the dashboard loads.
+- Exercise list/create/edit/delete or status flows for organizations, branches, venues, and clients.
+- Run the Setup Wizard organization path and confirm redirect to `/venues/:id`.
+- Run the Setup Wizard standalone path and confirm redirect to `/venues/:id`.
+- Force or simulate a wizard venue creation failure, then retry and confirm previously created entities are not recreated.
+- Run `npm run build`.
+- Run `npm test`.
