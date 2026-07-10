@@ -22,6 +22,7 @@ export interface WizardClientFormValue {
   company?: string;
   enabled: boolean;
   salesId?: string;
+  notes?: string;
 }
 
 export interface WizardOrganizationFormValue {

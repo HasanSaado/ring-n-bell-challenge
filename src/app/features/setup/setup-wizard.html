@@ -201,6 +201,14 @@
                 </label>
               </div>
 
+              <label class="block">
+                <span class="text-sm font-medium text-slate-700">Notes</span>
+                <textarea
+                  formControlName="notes"
+                  class="mt-1.5 block h-10 w-full rounded-xl border border-slate-200 px-3 text-sm text-slate-950 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-300/60"
+                ></textarea>
+              </label>
+
               <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
                 <input
                   type="checkbox"
@@ -505,6 +513,14 @@
                       </dt>
                       <dd class="mt-1 text-slate-950">
                         {{ display(clientForm.controls.company.value) }}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Notes
+                      </dt>
+                      <dd class="mt-1 text-slate-950">
+                        {{ display(clientForm.controls.notes.value) }}
                       </dd>
                     </div>
                   </dl>

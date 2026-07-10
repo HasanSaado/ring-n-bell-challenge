@@ -2,7 +2,12 @@ import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import {
   LucideBriefcaseBusiness,
   LucideBuilding2,
@@ -66,6 +71,7 @@ export class ClientList {
     name: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     phone: [''],
+    notes: [''],
     company: [''],
     enabled: [true],
   });
@@ -190,6 +196,10 @@ export class ClientList {
     return client.phone || 'Not set';
   }
 
+  getNotes(client: Client): string {
+    return client.notes || 'Not set';
+  }
+
   getCompany(client: Client): string {
     return client.company || 'Not set';
   }
@@ -264,6 +274,7 @@ export class ClientList {
       name: '',
       email: '',
       phone: '',
+      notes: '',
       company: '',
       enabled: true,
     });
@@ -278,6 +289,8 @@ export class ClientList {
       name: client.name,
       email: this.getEmail(client) === 'Not set' ? '' : this.getEmail(client),
       phone: this.getPhone(client) === 'Not set' ? '' : this.getPhone(client),
+      notes: this.getNotes(client) === 'Not set' ? '' : this.getNotes(client),
+
       company: this.getCompany(client) === 'Not set' ? '' : this.getCompany(client),
       enabled: this.isClientEnabled(client),
     });
@@ -425,7 +438,11 @@ export class ClientList {
   }
 
   private getMutationError(error: unknown, fallback: string): string {
-    if (error instanceof HttpErrorResponse && typeof error.error === 'object' && error.error !== null) {
+    if (
+      error instanceof HttpErrorResponse &&
+      typeof error.error === 'object' &&
+      error.error !== null
+    ) {
       if ('message' in error.error && typeof error.error.message === 'string') {
         return error.error.message;
       }
@@ -443,7 +460,11 @@ export class ClientList {
   }
 
   private isDependencyError(error: unknown): boolean {
-    if (!(error instanceof HttpErrorResponse) || typeof error.error !== 'object' || error.error === null) {
+    if (
+      !(error instanceof HttpErrorResponse) ||
+      typeof error.error !== 'object' ||
+      error.error === null
+    ) {
       return false;
     }
 

@@ -57,6 +57,7 @@ export class SetupWizard {
     name: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     phone: [''],
+    notes: [''],
     company: [''],
     enabled: [true],
   });
@@ -282,7 +283,8 @@ export class SetupWizard {
       }
     } catch {
       this.finishErrorMessage.set(
-        this.wizardState.errorMessage() ?? 'Setup could not be finished. Something went wrong. Please try again.',
+        this.wizardState.errorMessage() ??
+          'Setup could not be finished. Something went wrong. Please try again.',
       );
     }
   }
@@ -326,6 +328,7 @@ export class SetupWizard {
           name: formValues.client.name,
           email: formValues.client.email ?? '',
           phone: formValues.client.phone ?? '',
+          notes: formValues.client.notes ?? '',
           company: formValues.client.company ?? '',
           enabled: formValues.client.enabled,
         },
@@ -375,12 +378,18 @@ export class SetupWizard {
   }
 
   private watchFormChanges(): void {
-    this.clientForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.syncClientForm());
+    this.clientForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncClientForm());
     this.organizationForm.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.syncOrganizationForm());
-    this.branchForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.syncBranchForm());
-    this.venueForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.syncVenueForm());
+    this.branchForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncBranchForm());
+    this.venueForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncVenueForm());
   }
 
   private syncAllForms(): void {
@@ -397,6 +406,7 @@ export class SetupWizard {
       name: value.name,
       email: this.optionalString(value.email),
       phone: this.optionalString(value.phone),
+      notes: this.optionalString(value.notes),
       company: this.optionalString(value.company),
       enabled: value.enabled,
     });
@@ -542,9 +552,18 @@ export class SetupWizard {
       organization.country !== DEFAULT_COUNTRY ||
       organization.timezone !== DEFAULT_TIMEZONE ||
       organization.currency !== DEFAULT_CURRENCY ||
-      this.hasText(branch.name, branch.city, branch.country !== DEFAULT_COUNTRY ? branch.country : '') ||
+      this.hasText(
+        branch.name,
+        branch.city,
+        branch.country !== DEFAULT_COUNTRY ? branch.country : '',
+      ) ||
       branch.active !== true ||
-      this.hasText(venue.name, venue.type, venue.city, venue.country !== DEFAULT_COUNTRY ? venue.country : '') ||
+      this.hasText(
+        venue.name,
+        venue.type,
+        venue.city,
+        venue.country !== DEFAULT_COUNTRY ? venue.country : '',
+      ) ||
       venue.timezone !== DEFAULT_TIMEZONE ||
       venue.currency !== DEFAULT_CURRENCY ||
       venue.status !== DEFAULT_STATUS

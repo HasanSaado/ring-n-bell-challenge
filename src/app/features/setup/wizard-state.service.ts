@@ -110,7 +110,9 @@ export class WizardStateService {
 
   setPath(path: WizardPath): void {
     this.selectedPathState.set(path);
-    this.currentStepIndexState.update((index) => Math.min(index, this.getStepsForPath(path).length - 1));
+    this.currentStepIndexState.update((index) =>
+      Math.min(index, this.getStepsForPath(path).length - 1),
+    );
     this.clearFailure();
   }
 
@@ -238,7 +240,11 @@ export class WizardStateService {
       return created.clientId;
     }
 
-    const value = this.requireFormValue('client', this.formValuesState().client, 'Client details are required.');
+    const value = this.requireFormValue(
+      'client',
+      this.formValuesState().client,
+      'Client details are required.',
+    );
 
     this.appendProgress('Creating client...');
 
@@ -249,6 +255,7 @@ export class WizardStateService {
           email: this.optionalString(value.email),
           phone: this.optionalString(value.phone),
           company: this.optionalString(value.company),
+          notes: this.optionalString(value.notes),
           enabled: value.enabled,
           salesId: this.optionalString(value.salesId),
         }),
@@ -306,7 +313,11 @@ export class WizardStateService {
       return created.branchId;
     }
 
-    const value = this.requireFormValue('branch', this.formValuesState().branch, 'Branch details are required.');
+    const value = this.requireFormValue(
+      'branch',
+      this.formValuesState().branch,
+      'Branch details are required.',
+    );
 
     this.appendProgress('Creating branch...');
 
@@ -341,7 +352,11 @@ export class WizardStateService {
       return created.venueId;
     }
 
-    const value = this.requireFormValue('venue', this.formValuesState().venue, 'Venue details are required.');
+    const value = this.requireFormValue(
+      'venue',
+      this.formValuesState().venue,
+      'Venue details are required.',
+    );
 
     this.appendProgress('Creating venue...');
 
@@ -387,10 +402,7 @@ export class WizardStateService {
     return value;
   }
 
-  private async withStepFailure<T>(
-    entity: WizardEntity,
-    request: () => Promise<T>,
-  ): Promise<T> {
+  private async withStepFailure<T>(entity: WizardEntity, request: () => Promise<T>): Promise<T> {
     this.failedStepState.set(entity);
     this.failedEntityState.set(entity);
     this.errorMessageState.set(null);
@@ -438,7 +450,11 @@ export class WizardStateService {
   }
 
   private getUsefulServerMessage(error: unknown): string | null {
-    if (error instanceof HttpErrorResponse && typeof error.error === 'object' && error.error !== null) {
+    if (
+      error instanceof HttpErrorResponse &&
+      typeof error.error === 'object' &&
+      error.error !== null
+    ) {
       if ('message' in error.error && typeof error.error.message === 'string') {
         return this.normalizeUsefulMessage(error.error.message);
       }
@@ -491,7 +507,9 @@ export class WizardStateService {
   }
 
   private hasCreatedEntities(created: CreatedEntities): boolean {
-    return Boolean(created.clientId || created.organizationId || created.branchId || created.venueId);
+    return Boolean(
+      created.clientId || created.organizationId || created.branchId || created.venueId,
+    );
   }
 
   private hasValue(value: object | null): boolean {
@@ -526,7 +544,11 @@ export class WizardStateService {
 
   private requireEntityId(step: WizardStepId, id: string | undefined): string {
     if (!id) {
-      throw new WizardFinishError(step, step === 'review' ? null : step, 'The API response did not include an ID.');
+      throw new WizardFinishError(
+        step,
+        step === 'review' ? null : step,
+        'The API response did not include an ID.',
+      );
     }
 
     return id;

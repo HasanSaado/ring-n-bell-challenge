@@ -7,6 +7,7 @@ export interface Client {
   name: string;
   email?: string;
   phone?: string;
+  notes?: string;
   company?: string;
   enabled?: boolean;
   status?: string;
@@ -52,6 +53,7 @@ export interface CreateClientRequest {
   name: string;
   email?: string;
   phone?: string;
+  notes?: string;
   company?: string;
   enabled?: boolean;
   salesId?: string;
